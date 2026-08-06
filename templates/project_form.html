@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}New Project — TreqTrace{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h4 class="mb-0"><i class="bi bi-folder-plus text-primary"></i> New Project</h4>
+                    <p class="text-muted small mb-0">Create a new project and upload supporting documents</p>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label class="form-label">Project Name <span class="text-danger">*</span></label>
+                            <input type="text" name="name" class="form-control" placeholder="e.g., E-Commerce Platform" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" class="form-control" rows="4" placeholder="Brief description of the project..."></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label"><i class="bi bi-paperclip"></i> Attach Project Files</label>
+                            <input type="file" name="project_files" class="form-control" multiple accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.md">
+                            <div class="form-text text-muted small">
+                                Upload SRS documents, design specs, or reference materials. 
+                                Accepted: PDF, Word, Images, TXT. You can select multiple files.
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i> Create Project</button>
+                            <a href="{{ url_for('projects') }}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

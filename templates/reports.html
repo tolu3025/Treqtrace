@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Report — {{ project.name }} — TreqTrace{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('projects') }}">Projects</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('view_project', id=project.id) }}">{{ project.name }}</a></li>
+            <li class="breadcrumb-item active">Validation Report</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0"><i class="bi bi-file-earmark-text text-success"></i> Validation Report</h2>
+            <p class="text-muted mb-0">{{ project.name }} — Generated {{ now.strftime('%Y-%m-%d %H:%M') }}</p>
+        </div>
+        <a href="{{ url_for('export_report', project_id=project.id) }}" class="btn btn-success"><i class="bi bi-download"></i> Export CSV</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Req ID</th>
+                            <th>Title</th>
+                            <th>Type</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th class="text-center">Design Links</th>
+                            <th class="text-center">Test Links</th>
+                            <th>Validation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in report_data %}
+                        <tr>
+                            <td class="fw-bold">{{ row.req_id }}</td>
+                            <td>{{ row.title[:50] }}{% if row.title|length > 50 %}...{% endif %}</td>
+                            <td><span class="badge bg-outline-secondary">{{ row.type }}</span></td>
+                            <td>
+                                <span class="badge bg-{{ 'danger' if row.priority == 'high' else 'warning' if row.priority == 'medium' else 'info' }}">
+                                    {{ row.priority }}
+                                </span>
+                            </td>
+                            <td><span class="badge bg-secondary">{{ row.status }}</span></td>
+                            <td class="text-center">{{ row.design_count }}</td>
+                            <td class="text-center">{{ row.test_count }}</td>
+                            <td><span class="badge bg-{{ row.validation_badge }}">{{ row.validation_status }}</span></td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="8" class="text-center text-muted py-5">No requirements found</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    {% set validated = report_data | selectattr('validation_badge', 'equalto', 'success') | list | length %}
+    {% set failed = report_data | selectattr('validation_badge', 'equalto', 'danger') | list | length %}
+    {% set pending = report_data | selectattr('validation_badge', 'equalto', 'info') | list | length %}
+    {% set untraced = report_data | selectattr('validation_badge', 'equalto', 'secondary') | list | length %}
+
+    <div class="row g-3 mt-4">
+        <div class="col-md-3">
+            <div class="card text-center border-success">
+                <div class="card-body">
+                    <h3 class="text-success">{{ validated }}</h3>
+                    <p class="text-muted mb-0">Validated</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-danger">
+                <div class="card-body">
+                    <h3 class="text-danger">{{ failed }}</h3>
+                    <p class="text-muted mb-0">Failed</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-info">
+                <div class="card-body">
+                    <h3 class="text-info">{{ pending }}</h3>
+                    <p class="text-muted mb-0">In Progress</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-secondary">
+                <div class="card-body">
+                    <h3 class="text-secondary">{{ untraced }}</h3>
+                    <p class="text-muted mb-0">Not Traced</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

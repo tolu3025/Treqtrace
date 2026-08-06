@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}Traceability — {{ project.name }} — TreqTrace{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('projects') }}">Projects</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('view_project', id=project.id) }}">{{ project.name }}</a></li>
+            <li class="breadcrumb-item active">Traceability Matrix</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0"><i class="bi bi-link-45deg text-primary"></i> Requirement Traceability Matrix</h2>
+            <p class="text-muted mb-0">Bidirectional links between requirements, design, and tests</p>
+        </div>
+        <a href="{{ url_for('view_project', id=project.id) }}" class="btn btn-outline-secondary">Back to Project</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover mb-0 align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th style="min-width:120px">Requirement</th>
+                            <th style="min-width:200px">Title</th>
+                            <th style="min-width:150px">Design Artifacts</th>
+                            <th style="min-width:150px">Test Cases</th>
+                            <th style="min-width:130px">Validation</th>
+                            <th style="min-width:200px">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in rtm %}
+                        <tr>
+                            <td class="fw-bold">
+                                <a href="{{ url_for('view_requirement', id=row.requirement.id) }}" class="text-decoration-none">{{ row.requirement.req_id }}</a>
+                            </td>
+                            <td>{{ row.requirement.title[:60] }}{% if row.requirement.title|length > 60 %}...{% endif %}</td>
+                            <td>
+                                {% for d in row.designs %}
+                                <span class="badge bg-info me-1">{{ d.name }}</span>
+                                {% else %}
+                                <span class="text-muted small">None</span>
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% for t in row.tests %}
+                                <span class="badge bg-{{ 'success' if t.status == 'passed' else 'danger' if t.status == 'failed' else 'secondary' }} me-1">{{ t.tc_id }}</span>
+                                {% else %}
+                                <span class="text-muted small">None</span>
+                                {% endfor %}
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ row.validation.badge }}">{{ row.validation.label }}</span>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
+                                        <i class="bi bi-plus-lg"></i> Link Design
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        {% for d in design_artifacts %}
+                                        <li><a class="dropdown-item" href="#" onclick="addLink({{ row.requirement.id }}, {{ d.id }}, 'design')">{{ d.name }} ({{ d.artifact_type }})</a></li>
+                                        {% else %}
+                                        <li><span class="dropdown-item text-muted">No design artifacts</span></li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                <div class="btn-group btn-group-sm ms-1">
+                                    <button class="btn btn-outline-warning dropdown-toggle" data-bs-toggle="dropdown">
+                                        <i class="bi bi-plus-lg"></i> Link Test
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        {% for t in test_cases %}
+                                        <li><a class="dropdown-item" href="#" onclick="addLink({{ row.requirement.id }}, {{ t.id }}, 'test_case')">{{ t.tc_id }} — {{ t.title }}</a></li>
+                                        {% else %}
+                                        <li><span class="dropdown-item text-muted">No test cases</span></li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-5">
+                                <i class="bi bi-link-45deg display-4 d-block mb-2"></i>
+                                No requirements to trace. <a href="{{ url_for('new_requirement', project_id=project.id) }}">Add requirements</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trace Link Summary -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="bi bi-diagram-3 text-info"></i> Available Design Artifacts</h6>
+                </div>
+                <div class="card-body">
+                    {% for d in design_artifacts %}
+                    <span class="badge bg-light text-dark border me-1 mb-1">{{ d.name }} <small class="text-muted">({{ d.artifact_type }})</small></span>
+                    {% else %}
+                    <p class="text-muted">No design artifacts. <a href="{{ url_for('new_design', project_id=project.id) }}">Add one</a></p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="bi bi-bug text-warning"></i> Available Test Cases</h6>
+                </div>
+                <div class="card-body">
+                    {% for t in test_cases %}
+                    <span class="badge bg-light text-dark border me-1 mb-1">{{ t.tc_id }} <small class="text-muted">({{ t.status }})</small></span>
+                    {% else %}
+                    <p class="text-muted">No test cases. <a href="{{ url_for('new_test_case', project_id=project.id) }}">Add one</a></p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function addLink(reqId, artId, artType) {
+    fetch('/api/trace-link', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({requirement_id: reqId, artifact_id: artId, artifact_type: artType})
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.message);
+        }
+    });
+}
+</script>
+{% endblock %}

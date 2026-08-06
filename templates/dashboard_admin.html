@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard — TreqTrace{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0"><i class="bi bi-shield-lock text-danger"></i> Administrator Dashboard</h2>
+            <p class="text-muted mb-0">System-wide overview and user management</p>
+        </div>
+        <a href="{{ url_for('new_project') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Project</a>
+    </div>
+
+    <!-- Admin Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-6">
+            <div class="stat-card-dashboard bg-white border-start border-primary border-4">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1 small">Total Users</p>
+                        <h3 class="mb-0">{{ stats.total_users }}</h3>
+                    </div>
+                    <div class="stat-icon bg-primary-light"><i class="bi bi-people text-primary"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stat-card-dashboard bg-white border-start border-info border-4">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1 small">Projects</p>
+                        <h3 class="mb-0">{{ stats.total_projects }}</h3>
+                    </div>
+                    <div class="stat-icon bg-info-light"><i class="bi bi-folder text-info"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stat-card-dashboard bg-white border-start border-success border-4">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1 small">Requirements</p>
+                        <h3 class="mb-0">{{ stats.total_requirements }}</h3>
+                    </div>
+                    <div class="stat-icon bg-success-light"><i class="bi bi-file-text text-success"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stat-card-dashboard bg-white border-start border-warning border-4">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1 small">Test Cases</p>
+                        <h3 class="mb-0">{{ stats.total_test_cases }}</h3>
+                    </div>
+                    <div class="stat-icon bg-warning-light"><i class="bi bi-bug text-warning"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Validation Chart -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white"><h5 class="mb-0"><i class="bi bi-pie-chart"></i> System Validation Overview</h5></div>
+                <div class="card-body"><canvas id="validationChart" height="250"></canvas></div>
+            </div>
+        </div>
+        <!-- Recent Projects -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-folder"></i> Recent Projects</h5>
+                    <a href="{{ url_for('projects') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light"><tr><th>Project</th><th>Owner</th><th>Status</th><th>Created</th></tr></thead>
+                            <tbody>
+                                {% for proj in recent_projects %}
+                                <tr>
+                                    <td><a href="{{ url_for('view_project', id=proj.id) }}" class="fw-bold text-decoration-none">{{ proj.name }}</a></td>
+                                    <td>{{ proj.creator.username }}</td>
+                                    <td><span class="badge bg-{{ 'success' if proj.status == 'active' else 'secondary' }}">{{ proj.status }}</span></td>
+                                    <td class="text-muted small">{{ proj.created_at.strftime('%b %d') }}</td>
+                                </tr>
+                                {% else %}
+                                <tr><td colspan="4" class="text-center text-muted py-4">No projects yet</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-people"></i> Registered Users</h5>
+                    <a href="{{ url_for('admin_users') }}" class="btn btn-sm btn-outline-primary">Manage Users</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr><th>Username</th><th>Email</th><th>Role</th><th>Projects</th><th>Joined</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users[:10] %}
+                                <tr>
+                                    <td class="fw-bold">{{ user.username }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td><span class="badge bg-{{ 'danger' if user.role == 'admin' else 'info' if user.role == 'tester' else 'primary' }}">{{ user.role }}</span></td>
+                                    <td>{{ user.projects|length }}</td>
+                                    <td class="text-muted small">{{ user.created_at.strftime('%b %d, %Y') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const ctx = document.getElementById('validationChart').getContext('2d');
+new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Validated', 'Failed', 'In Progress', 'Not Traced'],
+        datasets: [{
+            data: [{{ stats.validated_reqs }}, {{ stats.failed_reqs }}, {{ stats.pending_reqs }}, {{ stats.not_traced }}],
+            backgroundColor: ['#28a745', '#dc3545', '#17a2b8', '#6c757d'],
+            borderWidth: 2, borderColor: '#fff'
+        }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+});
+</script>
+{% endblock %}

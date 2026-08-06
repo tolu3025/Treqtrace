@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — TreqTrace{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0"><i class="bi bi-speedometer2 text-primary"></i> Dashboard</h2>
+            <p class="text-muted mb-0">Overview of your requirement traceability</p>
+        </div>
+        <a href="{{ url_for('projects') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Project</a>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-2 col-6">
+            <div class="stat-card-dashboard bg-white">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1 small">Projects</p>
+                        <h3 class="mb-0">{{ stats.total_projects }}</h3>
+                    </div>
+                    <div class="stat-icon bg-primary-light">
+                        <i class="bi bi-folder text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="stat-card-dashboard bg-white">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1 small">Requirements</p>
+                        <h3 class="mb-0">{{ stats.total_requirements }}</h3>
+                    </div>
+                    <div class="stat-icon bg-info-light">
+                        <i class="bi bi-file-text text-info"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="stat-card-dashboard bg-white">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1 small">Test Cases</p>
+                        <h3 class="mb-0">{{ stats.total_test_cases }}</h3>
+                    </div>
+                    <div class="stat-icon bg-warning-light">
+                        <i class="bi bi-bug text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="stat-card-dashboard bg-white border-start border-success border-4">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1 small">Validated</p>
+                        <h3 class="mb-0 text-success">{{ stats.validated_reqs }}</h3>
+                    </div>
+                    <div class="stat-icon bg-success-light">
+                        <i class="bi bi-check-circle text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="stat-card-dashboard bg-white border-start border-danger border-4">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1 small">Failed</p>
+                        <h3 class="mb-0 text-danger">{{ stats.failed_reqs }}</h3>
+                    </div>
+                    <div class="stat-icon bg-danger-light">
+                        <i class="bi bi-x-circle text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="stat-card-dashboard bg-white border-start border-warning border-4">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1 small">Pending</p>
+                        <h3 class="mb-0 text-warning">{{ stats.pending_reqs + stats.not_traced }}</h3>
+                    </div>
+                    <div class="stat-icon bg-warning-light">
+                        <i class="bi bi-hourglass-split text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Validation Chart -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-pie-chart"></i> Validation Overview</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="validationChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+        <!-- Recent Activity -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-clock-history"></i> Recent Requirements</h5>
+                    <a href="{{ url_for('projects') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Title</th>
+                                    <th>Status</th>
+                                    <th>Updated</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for req in recent_requirements %}
+                                <tr>
+                                    <td><a href="{{ url_for('view_requirement', id=req.id) }}" class="fw-bold text-decoration-none">{{ req.req_id }}</a></td>
+                                    <td>{{ req.title[:40] }}{% if req.title|length > 40 %}...{% endif %}</td>
+                                    <td><span class="badge bg-{{ 'success' if req.status == 'validated' else 'info' if req.status == 'implemented' else 'secondary' }}">{{ req.status }}</span></td>
+                                    <td class="text-muted small">{{ req.updated_at.strftime('%Y-%m-%d') }}</td>
+                                </tr>
+                                {% else %}
+                                <tr><td colspan="4" class="text-center text-muted py-4">No requirements yet</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Projects Quick View -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-folder"></i> Your Projects</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        {% for project in projects[:6] %}
+                        <div class="col-md-4 col-lg-3">
+                            <a href="{{ url_for('view_project', id=project.id) }}" class="text-decoration-none">
+                                <div class="project-card p-3 bg-white rounded border h-100">
+                                    <h6 class="text-dark mb-1">{{ project.name }}</h6>
+                                    <p class="text-muted small mb-2">{{ project.description[:60] if project.description else 'No description' }}{% if project.description and project.description|length > 60 %}...{% endif %}</p>
+                                    <span class="badge bg-{{ 'success' if project.status == 'active' else 'secondary' }}">{{ project.status }}</span>
+                                    <span class="text-muted small ms-2">{{ project.created_at.strftime('%b %d, %Y') }}</span>
+                                </div>
+                            </a>
+                        </div>
+                        {% else %}
+                        <div class="col-12 text-center text-muted py-4">
+                            <i class="bi bi-folder-x display-4"></i>
+                            <p class="mt-2">No projects yet. <a href="{{ url_for('new_project') }}">Create one</a></p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const ctx = document.getElementById('validationChart').getContext('2d');
+new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Validated', 'Failed', 'In Progress', 'Not Traced'],
+        datasets: [{
+            data: [{{ stats.validated_reqs }}, {{ stats.failed_reqs }}, {{ stats.pending_reqs }}, {{ stats.not_traced }}],
+            backgroundColor: ['#28a745', '#dc3545', '#17a2b8', '#6c757d'],
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'bottom' }
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}{{ requirement.req_id }} — TreqTrace{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('projects') }}">Projects</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('view_project', id=project.id) }}">{{ project.name }}</a></li>
+            <li class="breadcrumb-item active">{{ requirement.req_id }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="mb-0">{{ requirement.req_id }}</h4>
+                        <span class="badge bg-{{ 'danger' if requirement.priority == 'high' else 'warning' if requirement.priority == 'medium' else 'info' }}">{{ requirement.priority }}</span>
+                        <span class="badge bg-secondary">{{ requirement.req_type }}</span>
+                    </div>
+                    <div>
+                        <span class="badge bg-{{ 'success' if requirement.status == 'validated' else 'info' }} fs-6">{{ requirement.status }}</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5>{{ requirement.title }}</h5>
+                    <p class="text-muted">{{ requirement.description or 'No description' }}</p>
+                    <hr>
+                    <div class="row text-muted small">
+                        <div class="col-md-6">Version: <strong>v{{ requirement.version }}</strong></div>
+                        <div class="col-md-6">Updated: <strong>{{ requirement.updated_at.strftime('%Y-%m-%d %H:%M') }}</strong></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Linked Artifacts -->
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-link-45deg text-primary"></i> Linked Artifacts</h5>
+                </div>
+                <div class="card-body">
+                    <h6 class="text-muted">Design Artifacts ({{ linked_designs|length }})</h6>
+                    {% if linked_designs %}
+                    <div class="list-group mb-3">
+                        {% for d in linked_designs %}
+                        <div class="list-group-item">
+                            <strong>{{ d.name }}</strong> <span class="badge bg-light text-dark">{{ d.artifact_type }}</span>
+                            <p class="mb-0 small text-muted">{{ d.description or '' }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No design artifacts linked.</p>
+                    {% endif %}
+
+                    <h6 class="text-muted">Test Cases ({{ linked_tests|length }})</h6>
+                    {% if linked_tests %}
+                    <div class="list-group">
+                        {% for t in linked_tests %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ t.tc_id }}</strong> — {{ t.title }}
+                                <p class="mb-0 small text-muted">Expected: {{ t.expected_result or '-' }}</p>
+                            </div>
+                            <span class="badge bg-{{ 'success' if t.status == 'passed' else 'danger' if t.status == 'failed' else 'secondary' }}">{{ t.status }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No test cases linked.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0">Validation Status</h6>
+                </div>
+                <div class="card-body">
+                    {% set val = requirement.get_validation_status() %}
+                    <div class="text-center">
+                        <div class="display-4 mb-2">
+                            <i class="bi bi-{{ 'check-circle-fill text-success' if val.status == 'validated' else 'x-circle-fill text-danger' if val.status == 'failed' else 'exclamation-circle-fill text-warning' if val.status in ['not_traced','not_tested'] else 'arrow-repeat text-info' }}"></i>
+                        </div>
+                        <h5 class="text-{{ val.badge }}">{{ val.label }}</h5>
+                        <p class="small text-muted">Based on linked test case results</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mt-3">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0">Version History</h6>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        {% for v in versions %}
+                        <li class="list-group-item">
+                            <small class="fw-bold">v{{ v.version }}</small>
+                            <span class="badge bg-secondary">{{ v.status }}</span>
+                            <p class="mb-0 small text-muted">{{ v.change_note or 'Update' }} — {{ v.user.username if v.user else 'Unknown' }}</p>
+                        </li>
+                        {% else %}
+                        <li class="list-group-item text-muted">No history</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 mt-3">
+                <a href="{{ url_for('edit_requirement', id=requirement.id) }}" class="btn btn-outline-primary"><i class="bi bi-pencil"></i> Edit Requirement</a>
+                <a href="{{ url_for('traceability', project_id=project.id) }}" class="btn btn-outline-info"><i class="bi bi-link-45deg"></i> Manage Traceability</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
