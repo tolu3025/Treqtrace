@@ -4,7 +4,7 @@ services:
     runtime: python
     plan: free
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "python -m gunicorn wsgi:app"   # <-- changed here
+    startCommand: "python3 -m gunicorn wsgi:app"   # <-- python3, not python
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.0
