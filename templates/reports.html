@@ -1,101 +1,148 @@
 {% extends "base.html" %}
-{% block title %}Report — {{ project.name }} — TreqTrace{% endblock %}
+{% block title %}Validation Report — {{ project.name }} — TreqTrace{% endblock %}
 {% block content %}
-<div class="container py-4">
+<div class="container-fluid px-lg-4 py-4">
+    <!-- Breadcrumb Nav -->
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ url_for('projects') }}">Projects</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('projects') }}"><i class="bi bi-folder me-1"></i>Projects</a></li>
             <li class="breadcrumb-item"><a href="{{ url_for('view_project', id=project.id) }}">{{ project.name }}</a></li>
-            <li class="breadcrumb-item active">Validation Report</li>
+            <li class="breadcrumb-item active" aria-current="page">Validation Report</li>
         </ol>
     </nav>
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <!-- Header Section -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
         <div>
-            <h2 class="mb-0"><i class="bi bi-file-earmark-text text-success"></i> Validation Report</h2>
-            <p class="text-muted mb-0">{{ project.name }} — Generated {{ now.strftime('%Y-%m-%d %H:%M') }}</p>
+            <h2 class="fw-bold mb-1 d-flex align-items-center gap-2">
+                <i class="bi bi-file-earmark-bar-graph-fill text-success"></i> Software Validation Summary Report
+            </h2>
+            <p class="text-muted mb-0">Project: <strong>{{ project.name }}</strong> — Generated on {{ now.strftime('%B %d, %Y at %H:%M UTC') }}</p>
         </div>
-        <a href="{{ url_for('export_report', project_id=project.id) }}" class="btn btn-success"><i class="bi bi-download"></i> Export CSV</a>
+        <div class="d-flex gap-2">
+            <button onclick="window.print()" class="btn btn-outline-secondary">
+                <i class="bi bi-printer me-1"></i> Print
+            </button>
+            <a href="{{ url_for('export_report', project_id=project.id) }}" class="btn btn-success shadow-sm">
+                <i class="bi bi-download me-1"></i> Export CSV Report
+            </a>
+        </div>
     </div>
 
+    <!-- Summary Metrics Grid -->
+    {% set validated = report_data | selectattr('validation_badge', 'equalto', 'success') | list | length %}
+    {% set failed = report_data | selectattr('validation_badge', 'equalto', 'danger') | list | length %}
+    {% set pending = report_data | selectattr('validation_badge', 'equalto', 'info') | list | length %}
+    {% set untraced = report_data | selectattr('validation_badge', 'equalto', 'secondary') | list | length %}
+    {% set total = report_data | length %}
+
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="stat-card-dashboard border-start border-4 border-success">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-muted fw-semibold small text-uppercase">Validated</span>
+                        <h2 class="fw-bold mb-0 mt-1 text-success">{{ validated }}</h2>
+                    </div>
+                    <div class="stat-icon bg-success-light">
+                        <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card-dashboard border-start border-4 border-danger">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-muted fw-semibold small text-uppercase">Failed</span>
+                        <h2 class="fw-bold mb-0 mt-1 text-danger">{{ failed }}</h2>
+                    </div>
+                    <div class="stat-icon bg-danger-light">
+                        <i class="bi bi-x-circle-fill text-danger fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card-dashboard border-start border-4 border-info">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-muted fw-semibold small text-uppercase">In Progress</span>
+                        <h2 class="fw-bold mb-0 mt-1 text-info">{{ pending }}</h2>
+                    </div>
+                    <div class="stat-icon bg-info-light">
+                        <i class="bi bi-hourglass-split text-info fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card-dashboard border-start border-4 border-secondary">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-muted fw-semibold small text-uppercase">Not Traced</span>
+                        <h2 class="fw-bold mb-0 mt-1 text-secondary">{{ untraced }}</h2>
+                    </div>
+                    <div class="stat-icon bg-light text-muted border">
+                        <i class="bi bi-dash-circle fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Table -->
     <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex align-items-center justify-content-between">
+            <h5 class="mb-0 fw-bold fs-6"><i class="bi bi-table me-2 text-primary"></i> Complete Requirement Validation Matrix</h5>
+            <span class="badge bg-primary">Total Requirements: {{ total }}</span>
+        </div>
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
                         <tr>
-                            <th>Req ID</th>
-                            <th>Title</th>
+                            <th style="min-width: 100px;">Req ID</th>
+                            <th style="min-width: 250px;">Requirement Title</th>
                             <th>Type</th>
                             <th>Priority</th>
                             <th>Status</th>
                             <th class="text-center">Design Links</th>
                             <th class="text-center">Test Links</th>
-                            <th>Validation</th>
+                            <th>Validation Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for row in report_data %}
                         <tr>
-                            <td class="fw-bold">{{ row.req_id }}</td>
-                            <td>{{ row.title[:50] }}{% if row.title|length > 50 %}...{% endif %}</td>
-                            <td><span class="badge bg-outline-secondary">{{ row.type }}</span></td>
+                            <td class="fw-bold text-primary">{{ row.req_id }}</td>
+                            <td class="fw-medium text-dark">{{ row.title }}</td>
+                            <td><span class="badge bg-light text-dark border">{{ row.type|capitalize }}</span></td>
                             <td>
                                 <span class="badge bg-{{ 'danger' if row.priority == 'high' else 'warning' if row.priority == 'medium' else 'info' }}">
-                                    {{ row.priority }}
+                                    {{ row.priority|capitalize }}
                                 </span>
                             </td>
-                            <td><span class="badge bg-secondary">{{ row.status }}</span></td>
-                            <td class="text-center">{{ row.design_count }}</td>
-                            <td class="text-center">{{ row.test_count }}</td>
-                            <td><span class="badge bg-{{ row.validation_badge }}">{{ row.validation_status }}</span></td>
+                            <td><span class="badge bg-secondary">{{ row.status|capitalize }}</span></td>
+                            <td class="text-center"><span class="badge bg-info-light text-info fw-bold">{{ row.design_count }}</span></td>
+                            <td class="text-center"><span class="badge bg-warning-light text-warning fw-bold">{{ row.test_count }}</span></td>
+                            <td>
+                                <span class="badge bg-{{ row.validation_badge }}">
+                                    <span class="status-dot {{ 'success' if row.validation_badge == 'success' else 'danger' if row.validation_badge == 'danger' else 'warning' }}"></span>
+                                    {{ row.validation_status }}
+                                </span>
+                            </td>
                         </tr>
                         {% else %}
-                        <tr><td colspan="8" class="text-center text-muted py-5">No requirements found</td></tr>
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-5">
+                                <i class="bi bi-file-earmark-x display-5 d-block mb-2 text-secondary"></i>
+                                No requirements found for this report.
+                            </td>
+                        </tr>
                         {% endfor %}
                     </tbody>
                 </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- Summary Cards -->
-    {% set validated = report_data | selectattr('validation_badge', 'equalto', 'success') | list | length %}
-    {% set failed = report_data | selectattr('validation_badge', 'equalto', 'danger') | list | length %}
-    {% set pending = report_data | selectattr('validation_badge', 'equalto', 'info') | list | length %}
-    {% set untraced = report_data | selectattr('validation_badge', 'equalto', 'secondary') | list | length %}
-
-    <div class="row g-3 mt-4">
-        <div class="col-md-3">
-            <div class="card text-center border-success">
-                <div class="card-body">
-                    <h3 class="text-success">{{ validated }}</h3>
-                    <p class="text-muted mb-0">Validated</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center border-danger">
-                <div class="card-body">
-                    <h3 class="text-danger">{{ failed }}</h3>
-                    <p class="text-muted mb-0">Failed</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center border-info">
-                <div class="card-body">
-                    <h3 class="text-info">{{ pending }}</h3>
-                    <p class="text-muted mb-0">In Progress</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center border-secondary">
-                <div class="card-body">
-                    <h3 class="text-secondary">{{ untraced }}</h3>
-                    <p class="text-muted mb-0">Not Traced</p>
-                </div>
             </div>
         </div>
     </div>

@@ -1,91 +1,98 @@
 {% extends "base.html" %}
 {% block title %}Dashboard — TreqTrace{% endblock %}
 {% block content %}
-<div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="container-fluid px-lg-4 py-4">
+    <!-- Header Banner -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
         <div>
-            <h2 class="mb-0"><i class="bi bi-speedometer2 text-primary"></i> Dashboard</h2>
-            <p class="text-muted mb-0">Overview of your requirement traceability</p>
+            <h2 class="fw-bold mb-1 d-flex align-items-center gap-2">
+                <i class="bi bi-grid-1x2-fill text-primary"></i> System Dashboard
+            </h2>
+            <p class="text-muted mb-0">Real-time Software Requirement Traceability & Validation Metrics</p>
         </div>
-        <a href="{{ url_for('projects') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Project</a>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('new_project') }}" class="btn btn-primary shadow-sm">
+                <i class="bi bi-plus-lg me-1"></i> Create Project
+            </a>
+        </div>
     </div>
 
-    <!-- Stats Cards -->
+    <!-- Metrics Cards Grid -->
     <div class="row g-3 mb-4">
-        <div class="col-md-2 col-6">
-            <div class="stat-card-dashboard bg-white">
-                <div class="d-flex justify-content-between">
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="stat-card-dashboard h-100">
+                <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <p class="text-muted mb-1 small">Projects</p>
-                        <h3 class="mb-0">{{ stats.total_projects }}</h3>
+                        <span class="text-muted fw-semibold small text-uppercase">Projects</span>
+                        <h2 class="fw-bold mb-0 mt-1">{{ stats.total_projects }}</h2>
                     </div>
                     <div class="stat-icon bg-primary-light">
-                        <i class="bi bi-folder text-primary"></i>
+                        <i class="bi bi-folder-fill fs-4 text-primary"></i>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-2 col-6">
-            <div class="stat-card-dashboard bg-white">
-                <div class="d-flex justify-content-between">
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="stat-card-dashboard h-100">
+                <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <p class="text-muted mb-1 small">Requirements</p>
-                        <h3 class="mb-0">{{ stats.total_requirements }}</h3>
+                        <span class="text-muted fw-semibold small text-uppercase">Requirements</span>
+                        <h2 class="fw-bold mb-0 mt-1">{{ stats.total_requirements }}</h2>
                     </div>
                     <div class="stat-icon bg-info-light">
-                        <i class="bi bi-file-text text-info"></i>
+                        <i class="bi bi-file-text-fill fs-4 text-info"></i>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-2 col-6">
-            <div class="stat-card-dashboard bg-white">
-                <div class="d-flex justify-content-between">
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="stat-card-dashboard h-100">
+                <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <p class="text-muted mb-1 small">Test Cases</p>
-                        <h3 class="mb-0">{{ stats.total_test_cases }}</h3>
+                        <span class="text-muted fw-semibold small text-uppercase">Test Cases</span>
+                        <h2 class="fw-bold mb-0 mt-1">{{ stats.total_test_cases }}</h2>
                     </div>
                     <div class="stat-icon bg-warning-light">
-                        <i class="bi bi-bug text-warning"></i>
+                        <i class="bi bi-ui-checks fs-4 text-warning"></i>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-2 col-6">
-            <div class="stat-card-dashboard bg-white border-start border-success border-4">
-                <div class="d-flex justify-content-between">
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="stat-card-dashboard h-100 border-start border-4 border-success">
+                <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <p class="text-muted mb-1 small">Validated</p>
-                        <h3 class="mb-0 text-success">{{ stats.validated_reqs }}</h3>
+                        <span class="text-muted fw-semibold small text-uppercase">Validated</span>
+                        <h2 class="fw-bold mb-0 mt-1 text-success">{{ stats.validated_reqs }}</h2>
                     </div>
                     <div class="stat-icon bg-success-light">
-                        <i class="bi bi-check-circle text-success"></i>
+                        <i class="bi bi-check-circle-fill fs-4 text-success"></i>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-2 col-6">
-            <div class="stat-card-dashboard bg-white border-start border-danger border-4">
-                <div class="d-flex justify-content-between">
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="stat-card-dashboard h-100 border-start border-4 border-danger">
+                <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <p class="text-muted mb-1 small">Failed</p>
-                        <h3 class="mb-0 text-danger">{{ stats.failed_reqs }}</h3>
+                        <span class="text-muted fw-semibold small text-uppercase">Failed</span>
+                        <h2 class="fw-bold mb-0 mt-1 text-danger">{{ stats.failed_reqs }}</h2>
                     </div>
                     <div class="stat-icon bg-danger-light">
-                        <i class="bi bi-x-circle text-danger"></i>
+                        <i class="bi bi-x-circle-fill fs-4 text-danger"></i>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-2 col-6">
-            <div class="stat-card-dashboard bg-white border-start border-warning border-4">
-                <div class="d-flex justify-content-between">
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="stat-card-dashboard h-100 border-start border-4 border-warning">
+                <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <p class="text-muted mb-1 small">Pending</p>
-                        <h3 class="mb-0 text-warning">{{ stats.pending_reqs + stats.not_traced }}</h3>
+                        <span class="text-muted fw-semibold small text-uppercase">Pending</span>
+                        <h2 class="fw-bold mb-0 mt-1 text-warning">{{ stats.pending_reqs + stats.not_traced }}</h2>
                     </div>
                     <div class="stat-icon bg-warning-light">
-                        <i class="bi bi-hourglass-split text-warning"></i>
+                        <i class="bi bi-hourglass-split fs-4 text-warning"></i>
                     </div>
                 </div>
             </div>
@@ -94,29 +101,34 @@
 
     <div class="row g-4">
         <!-- Validation Chart -->
-        <div class="col-lg-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="bi bi-pie-chart"></i> Validation Overview</h5>
+        <div class="col-lg-5">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0 fw-bold fs-6"><i class="bi bi-pie-chart-fill text-primary me-2"></i> Validation Status Distribution</h5>
                 </div>
-                <div class="card-body">
-                    <canvas id="validationChart" height="250"></canvas>
+                <div class="card-body d-flex flex-column align-items-center justify-content-center py-4">
+                    <div style="position: relative; height: 260px; width: 100%;">
+                        <canvas id="validationChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
-        <!-- Recent Activity -->
-        <div class="col-lg-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="bi bi-clock-history"></i> Recent Requirements</h5>
-                    <a href="{{ url_for('projects') }}" class="btn btn-sm btn-outline-primary">View All</a>
+
+        <!-- Recent Requirements -->
+        <div class="col-lg-7">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0 fw-bold fs-6"><i class="bi bi-clock-history text-info me-2"></i> Recent Requirements Activity</h5>
+                    <a href="{{ url_for('projects') }}" class="btn btn-sm btn-outline-primary fw-semibold">
+                        View Projects <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
                                 <tr>
-                                    <th>ID</th>
+                                    <th>Req ID</th>
                                     <th>Title</th>
                                     <th>Status</th>
                                     <th>Updated</th>
@@ -125,13 +137,31 @@
                             <tbody>
                                 {% for req in recent_requirements %}
                                 <tr>
-                                    <td><a href="{{ url_for('view_requirement', id=req.id) }}" class="fw-bold text-decoration-none">{{ req.req_id }}</a></td>
-                                    <td>{{ req.title[:40] }}{% if req.title|length > 40 %}...{% endif %}</td>
-                                    <td><span class="badge bg-{{ 'success' if req.status == 'validated' else 'info' if req.status == 'implemented' else 'secondary' }}">{{ req.status }}</span></td>
-                                    <td class="text-muted small">{{ req.updated_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        <a href="{{ url_for('view_requirement', id=req.id) }}" class="fw-bold text-primary text-decoration-none">
+                                            {{ req.req_id }}
+                                        </a>
+                                    </td>
+                                    <td class="fw-medium text-dark">
+                                        {{ req.title[:45] }}{% if req.title|length > 45 %}...{% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if req.status == 'validated' else 'info' if req.status == 'implemented' else 'secondary' }}">
+                                            <span class="status-dot {{ 'success' if req.status == 'validated' else 'info' if req.status == 'implemented' else 'warning' }}"></span>
+                                            {{ req.status|capitalize }}
+                                        </span>
+                                    </td>
+                                    <td class="text-muted small">
+                                        {{ req.updated_at.strftime('%b %d, %Y') }}
+                                    </td>
                                 </tr>
                                 {% else %}
-                                <tr><td colspan="4" class="text-center text-muted py-4">No requirements yet</td></tr>
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-5">
+                                        <i class="bi bi-file-earmark-x display-6 d-block mb-2 text-secondary"></i>
+                                        No requirements created yet. Start by creating a project!
+                                    </td>
+                                </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -141,30 +171,44 @@
         </div>
     </div>
 
-    <!-- Projects Quick View -->
+    <!-- Active Projects List -->
     <div class="row mt-4">
         <div class="col-12">
             <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="bi bi-folder"></i> Your Projects</h5>
+                <div class="card-header bg-white d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0 fw-bold fs-6"><i class="bi bi-folder-fill text-warning me-2"></i> Active Projects Overview</h5>
+                    <a href="{{ url_for('projects') }}" class="btn btn-sm btn-outline-primary">All Projects</a>
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
                         {% for project in projects[:6] %}
-                        <div class="col-md-4 col-lg-3">
+                        <div class="col-12 col-md-6 col-lg-4">
                             <a href="{{ url_for('view_project', id=project.id) }}" class="text-decoration-none">
-                                <div class="project-card p-3 bg-white rounded border h-100">
-                                    <h6 class="text-dark mb-1">{{ project.name }}</h6>
-                                    <p class="text-muted small mb-2">{{ project.description[:60] if project.description else 'No description' }}{% if project.description and project.description|length > 60 %}...{% endif %}</p>
-                                    <span class="badge bg-{{ 'success' if project.status == 'active' else 'secondary' }}">{{ project.status }}</span>
-                                    <span class="text-muted small ms-2">{{ project.created_at.strftime('%b %d, %Y') }}</span>
+                                <div class="stat-card-dashboard h-100">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="fw-bold text-dark mb-0">{{ project.name }}</h6>
+                                        <span class="badge bg-{{ 'success' if project.status == 'active' else 'secondary' }}">
+                                            {{ project.status|capitalize }}
+                                        </span>
+                                    </div>
+                                    <p class="text-muted small mb-3 text-truncate">
+                                        {{ project.description if project.description else 'No description provided.' }}
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center text-muted small border-top pt-2">
+                                        <span><i class="bi bi-calendar-event me-1"></i> {{ project.created_at.strftime('%b %d, %Y') }}</span>
+                                        <span class="text-primary fw-semibold">View Matrix <i class="bi bi-chevron-right"></i></span>
+                                    </div>
                                 </div>
                             </a>
                         </div>
                         {% else %}
-                        <div class="col-12 text-center text-muted py-4">
-                            <i class="bi bi-folder-x display-4"></i>
-                            <p class="mt-2">No projects yet. <a href="{{ url_for('new_project') }}">Create one</a></p>
+                        <div class="col-12 text-center text-muted py-5">
+                            <i class="bi bi-folder-plus display-5 d-block mb-3 text-secondary"></i>
+                            <h6 class="fw-semibold">No active projects found</h6>
+                            <p class="small text-muted mb-3">Create your first software project to start tracing requirements.</p>
+                            <a href="{{ url_for('new_project') }}" class="btn btn-primary btn-sm">
+                                <i class="bi bi-plus-lg me-1"></i> Create Project Now
+                            </a>
                         </div>
                         {% endfor %}
                     </div>
@@ -175,24 +219,37 @@
 </div>
 
 <script>
-const ctx = document.getElementById('validationChart').getContext('2d');
-new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-        labels: ['Validated', 'Failed', 'In Progress', 'Not Traced'],
-        datasets: [{
-            data: [{{ stats.validated_reqs }}, {{ stats.failed_reqs }}, {{ stats.pending_reqs }}, {{ stats.not_traced }}],
-            backgroundColor: ['#28a745', '#dc3545', '#17a2b8', '#6c757d'],
-            borderWidth: 2,
-            borderColor: '#fff'
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: { position: 'bottom' }
-        }
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('validationChart');
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Validated', 'Failed', 'In Progress', 'Not Traced'],
+                datasets: [{
+                    data: [{{ stats.validated_reqs }}, {{ stats.failed_reqs }}, {{ stats.pending_reqs }}, {{ stats.not_traced }}],
+                    backgroundColor: ['#10b981', '#ef4444', '#06b6d4', '#64748b'],
+                    hoverBackgroundColor: ['#059669', '#dc2626', '#0891b2', '#475569'],
+                    borderWidth: 3,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: { family: 'Plus Jakarta Sans', size: 12, weight: '600' },
+                            padding: 16,
+                            usePointStyle: true
+                        }
+                    }
+                },
+                cutout: '70%'
+            }
+        });
     }
 });
 </script>

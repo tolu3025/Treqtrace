@@ -1,83 +1,126 @@
 {% extends "base.html" %}
-{% block title %}Traceability — {{ project.name }} — TreqTrace{% endblock %}
+{% block title %}Traceability Matrix — {{ project.name }} — TreqTrace{% endblock %}
 {% block content %}
-<div class="container-fluid py-4">
+<div class="container-fluid px-lg-4 py-4">
+    <!-- Breadcrumb Nav -->
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ url_for('projects') }}">Projects</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('projects') }}"><i class="bi bi-folder me-1"></i>Projects</a></li>
             <li class="breadcrumb-item"><a href="{{ url_for('view_project', id=project.id) }}">{{ project.name }}</a></li>
-            <li class="breadcrumb-item active">Traceability Matrix</li>
+            <li class="breadcrumb-item active" aria-current="page">Traceability Matrix</li>
         </ol>
     </nav>
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <!-- Header Section -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
         <div>
-            <h2 class="mb-0"><i class="bi bi-link-45deg text-primary"></i> Requirement Traceability Matrix</h2>
-            <p class="text-muted mb-0">Bidirectional links between requirements, design, and tests</p>
+            <h2 class="fw-bold mb-1 d-flex align-items-center gap-2">
+                <i class="bi bi-diagram-3-fill text-primary"></i> Requirement Traceability Matrix (RTM)
+            </h2>
+            <p class="text-muted mb-0">Bidirectional mapping between requirements, design artifacts, and test cases</p>
         </div>
-        <a href="{{ url_for('view_project', id=project.id) }}" class="btn btn-outline-secondary">Back to Project</a>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('reports', project_id=project.id) }}" class="btn btn-outline-success">
+                <i class="bi bi-file-earmark-bar-graph me-1"></i> Export Report
+            </a>
+            <a href="{{ url_for('view_project', id=project.id) }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Back to Project
+            </a>
+        </div>
     </div>
 
-    <div class="card shadow-sm">
+    <!-- Search & Filter Bar -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body p-3">
+            <div class="row g-2 align-items-center">
+                <div class="col-12 col-md-6">
+                    <div class="search-box">
+                        <i class="bi bi-search"></i>
+                        <input type="text" id="rtmSearchInput" class="form-control" placeholder="Search requirement ID, title or test cases...">
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 d-flex justify-content-md-end gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-secondary filter-btn active" onclick="filterRTM('all')">All</button>
+                    <button type="button" class="btn btn-sm btn-outline-success filter-btn" onclick="filterRTM('validated')">Validated</button>
+                    <button type="button" class="btn btn-sm btn-outline-danger filter-btn" onclick="filterRTM('failed')">Failed</button>
+                    <button type="button" class="btn btn-sm btn-outline-warning filter-btn" onclick="filterRTM('not_traced')">Not Traced</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Matrix Table -->
+    <div class="card shadow-sm mb-4">
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-bordered table-hover mb-0 align-middle">
-                    <thead class="table-dark">
+                <table class="table table-bordered table-hover align-middle mb-0" id="rtmTable">
+                    <thead>
                         <tr>
-                            <th style="min-width:120px">Requirement</th>
-                            <th style="min-width:200px">Title</th>
-                            <th style="min-width:150px">Design Artifacts</th>
-                            <th style="min-width:150px">Test Cases</th>
-                            <th style="min-width:130px">Validation</th>
-                            <th style="min-width:200px">Actions</th>
+                            <th style="min-width:130px;">Req ID</th>
+                            <th style="min-width:220px;">Requirement Title</th>
+                            <th style="min-width:180px;">Design Artifacts</th>
+                            <th style="min-width:180px;">Test Cases</th>
+                            <th style="min-width:140px;">Validation Status</th>
+                            <th style="min-width:180px;" class="text-end">Link Artifacts</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for row in rtm %}
-                        <tr>
+                        <tr class="rtm-row" data-status="{{ row.validation.status }}">
                             <td class="fw-bold">
-                                <a href="{{ url_for('view_requirement', id=row.requirement.id) }}" class="text-decoration-none">{{ row.requirement.req_id }}</a>
+                                <a href="{{ url_for('view_requirement', id=row.requirement.id) }}" class="text-decoration-none text-primary req-id">
+                                    <i class="bi bi-file-text me-1"></i>{{ row.requirement.req_id }}
+                                </a>
                             </td>
-                            <td>{{ row.requirement.title[:60] }}{% if row.requirement.title|length > 60 %}...{% endif %}</td>
+                            <td class="req-title text-dark fw-medium">
+                                {{ row.requirement.title }}
+                            </td>
                             <td>
                                 {% for d in row.designs %}
-                                <span class="badge bg-info me-1">{{ d.name }}</span>
+                                <span class="badge bg-info bg-opacity-10 text-info border border-info mb-1 d-inline-block">
+                                    <i class="bi bi-diagram-2 me-1"></i>{{ d.name }}
+                                </span>
                                 {% else %}
-                                <span class="text-muted small">None</span>
+                                <span class="text-muted small italic"><i class="bi bi-dash-circle me-1"></i>No design linked</span>
                                 {% endfor %}
                             </td>
                             <td>
                                 {% for t in row.tests %}
-                                <span class="badge bg-{{ 'success' if t.status == 'passed' else 'danger' if t.status == 'failed' else 'secondary' }} me-1">{{ t.tc_id }}</span>
+                                <span class="badge bg-{{ 'success' if t.status == 'passed' else 'danger' if t.status == 'failed' else 'warning' }} mb-1 d-inline-block">
+                                    <i class="bi bi-check2-square me-1"></i>{{ t.tc_id }}
+                                </span>
                                 {% else %}
-                                <span class="text-muted small">None</span>
+                                <span class="text-muted small italic"><i class="bi bi-dash-circle me-1"></i>No test linked</span>
                                 {% endfor %}
                             </td>
                             <td>
-                                <span class="badge bg-{{ row.validation.badge }}">{{ row.validation.label }}</span>
+                                <span class="badge bg-{{ row.validation.badge }}">
+                                    <span class="status-dot {{ 'success' if row.validation.status == 'validated' else 'danger' if row.validation.status == 'failed' else 'warning' }}"></span>
+                                    {{ row.validation.label }}
+                                </span>
                             </td>
-                            <td>
-                                <div class="btn-group btn-group-sm">
-                                    <button class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
-                                        <i class="bi bi-plus-lg"></i> Link Design
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm mb-1">
+                                    <button class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-link-45deg me-1"></i> Design
                                     </button>
-                                    <ul class="dropdown-menu">
+                                    <ul class="dropdown-menu dropdown-menu-end shadow">
                                         {% for d in design_artifacts %}
-                                        <li><a class="dropdown-item" href="#" onclick="addLink({{ row.requirement.id }}, {{ d.id }}, 'design')">{{ d.name }} ({{ d.artifact_type }})</a></li>
+                                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="addLink({{ row.requirement.id }}, {{ d.id }}, 'design')"><i class="bi bi-plus-circle me-1 text-primary"></i> {{ d.name }}</a></li>
                                         {% else %}
-                                        <li><span class="dropdown-item text-muted">No design artifacts</span></li>
+                                        <li><span class="dropdown-item text-muted">No design artifacts found</span></li>
                                         {% endfor %}
                                     </ul>
                                 </div>
-                                <div class="btn-group btn-group-sm ms-1">
-                                    <button class="btn btn-outline-warning dropdown-toggle" data-bs-toggle="dropdown">
-                                        <i class="bi bi-plus-lg"></i> Link Test
+                                <div class="btn-group btn-group-sm mb-1 ms-1">
+                                    <button class="btn btn-outline-warning dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-link-45deg me-1"></i> Test
                                     </button>
-                                    <ul class="dropdown-menu">
+                                    <ul class="dropdown-menu dropdown-menu-end shadow">
                                         {% for t in test_cases %}
-                                        <li><a class="dropdown-item" href="#" onclick="addLink({{ row.requirement.id }}, {{ t.id }}, 'test_case')">{{ t.tc_id }} — {{ t.title }}</a></li>
+                                        <li><a class="dropdown-item" href="javascript:void(0)" onclick="addLink({{ row.requirement.id }}, {{ t.id }}, 'test_case')"><i class="bi bi-plus-circle me-1 text-warning"></i> {{ t.tc_id }} — {{ t.title }}</a></li>
                                         {% else %}
-                                        <li><span class="dropdown-item text-muted">No test cases</span></li>
+                                        <li><span class="dropdown-item text-muted">No test cases found</span></li>
                                         {% endfor %}
                                     </ul>
                                 </div>
@@ -86,8 +129,12 @@
                         {% else %}
                         <tr>
                             <td colspan="6" class="text-center text-muted py-5">
-                                <i class="bi bi-link-45deg display-4 d-block mb-2"></i>
-                                No requirements to trace. <a href="{{ url_for('new_requirement', project_id=project.id) }}">Add requirements</a>
+                                <i class="bi bi-diagram-3 display-4 d-block mb-3 text-secondary"></i>
+                                <h5 class="fw-semibold">No Requirements to Trace</h5>
+                                <p class="small text-muted mb-3">Add requirements to this project to automatically build your traceability matrix.</p>
+                                <a href="{{ url_for('new_requirement', project_id=project.id) }}" class="btn btn-primary btn-sm">
+                                    <i class="bi bi-plus-lg me-1"></i> Add Requirement
+                                </a>
                             </td>
                         </tr>
                         {% endfor %}
@@ -97,32 +144,38 @@
         </div>
     </div>
 
-    <!-- Trace Link Summary -->
-    <div class="row mt-4">
+    <!-- Reference Artifacts Summary Cards -->
+    <div class="row g-4">
         <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h6 class="mb-0"><i class="bi bi-diagram-3 text-info"></i> Available Design Artifacts</h6>
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white d-flex align-items-center justify-content-between">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-diagram-2 text-info me-2"></i> Available Design Artifacts</h6>
+                    <a href="{{ url_for('new_design', project_id=project.id) }}" class="btn btn-sm btn-outline-info">Add Design</a>
                 </div>
                 <div class="card-body">
                     {% for d in design_artifacts %}
-                    <span class="badge bg-light text-dark border me-1 mb-1">{{ d.name }} <small class="text-muted">({{ d.artifact_type }})</small></span>
+                    <span class="badge bg-light text-dark border p-2 me-1 mb-2">
+                        <i class="bi bi-file-earmark-code me-1 text-info"></i> {{ d.name }} <small class="text-muted">({{ d.artifact_type }})</small>
+                    </span>
                     {% else %}
-                    <p class="text-muted">No design artifacts. <a href="{{ url_for('new_design', project_id=project.id) }}">Add one</a></p>
+                    <p class="text-muted small mb-0">No design artifacts added yet. <a href="{{ url_for('new_design', project_id=project.id) }}">Add one now</a>.</p>
                     {% endfor %}
                 </div>
             </div>
         </div>
         <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h6 class="mb-0"><i class="bi bi-bug text-warning"></i> Available Test Cases</h6>
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white d-flex align-items-center justify-content-between">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-ui-checks text-warning me-2"></i> Available Test Cases</h6>
+                    <a href="{{ url_for('new_test_case', project_id=project.id) }}" class="btn btn-sm btn-outline-warning">Add Test Case</a>
                 </div>
                 <div class="card-body">
                     {% for t in test_cases %}
-                    <span class="badge bg-light text-dark border me-1 mb-1">{{ t.tc_id }} <small class="text-muted">({{ t.status }})</small></span>
+                    <span class="badge bg-light text-dark border p-2 me-1 mb-2">
+                        <i class="bi bi-bug me-1 text-warning"></i> {{ t.tc_id }} <small class="text-muted">({{ t.status|capitalize }})</small>
+                    </span>
                     {% else %}
-                    <p class="text-muted">No test cases. <a href="{{ url_for('new_test_case', project_id=project.id) }}">Add one</a></p>
+                    <p class="text-muted small mb-0">No test cases created yet. <a href="{{ url_for('new_test_case', project_id=project.id) }}">Create one now</a>.</p>
                     {% endfor %}
                 </div>
             </div>
@@ -131,18 +184,36 @@
 </div>
 
 <script>
-function addLink(reqId, artId, artType) {
-    fetch('/api/trace-link', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({requirement_id: reqId, artifact_id: artId, artifact_type: artType})
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('rtmSearchInput');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function() {
+            const query = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#rtmTable tbody tr.rtm-row');
+            rows.forEach(row => {
+                const id = row.querySelector('.req-id').textContent.toLowerCase();
+                const title = row.querySelector('.req-title').textContent.toLowerCase();
+                if (id.includes(query) || title.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+});
+
+function filterRTM(status) {
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    const rows = document.querySelectorAll('#rtmTable tbody tr.rtm-row');
+    rows.forEach(row => {
+        const rowStatus = row.getAttribute('data-status');
+        if (status === 'all' || rowStatus === status || (status === 'not_traced' && (rowStatus === 'not_traced' || rowStatus === 'not_tested'))) {
+            row.style.display = '';
         } else {
-            alert(data.message);
+            row.style.display = 'none';
         }
     });
 }

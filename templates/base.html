@@ -5,43 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{{ app_name }}{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
     {% if current_user.is_authenticated %}
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark-treq">
-        <div class="container-fluid">
-            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('dashboard') }}">
-                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="TreqTrace" height="35" class="me-2">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark-treq shadow-sm">
+        <div class="container-fluid px-lg-4">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('dashboard') }}">
+                <div class="brand-icon">
+                    <i class="bi bi-shield-check"></i>
+                </div>
                 <span class="brand-text">TreqTrace</span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
+                <ul class="navbar-nav me-auto ms-lg-3 gap-1">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('dashboard') }}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                        <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">
+                            <i class="bi bi-grid-1x2-fill"></i> Dashboard
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('projects') }}"><i class="bi bi-folder"></i> Projects</a>
+                        <a class="nav-link {% if request.endpoint in ['projects', 'view_project', 'new_project'] %}active{% endif %}" href="{{ url_for('projects') }}">
+                            <i class="bi bi-folder-fill"></i> Projects
+                        </a>
                     </li>
                 </ul>
-                <ul class="navbar-nav">
+                <ul class="navbar-nav align-items-lg-center gap-2">
                     {% if current_user.is_admin() %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('admin_users') }}"><i class="bi bi-people"></i> Users</a>
+                        <a class="nav-link {% if request.endpoint == 'admin_users' %}active{% endif %}" href="{{ url_for('admin_users') }}">
+                            <i class="bi bi-people-fill"></i> User Management
+                        </a>
                     </li>
                     {% endif %}
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                            <i class="bi bi-person-circle"></i> {{ current_user.username }}
-                            <span class="badge bg-{{ 'danger' if current_user.role == 'admin' else 'info' }}">{{ current_user.role }}</span>
+                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 py-1 px-3 bg-white bg-opacity-10 rounded-pill" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle fs-5 text-indigo"></i>
+                            <span class="fw-semibold">{{ current_user.username }}</span>
+                            <span class="badge user-badge-role bg-{{ 'danger' if current_user.role == 'admin' else 'info' if current_user.role == 'tester' else 'primary' }}">
+                                {{ current_user.role }}
+                            </span>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2">
+                            <li><h6 class="dropdown-header text-uppercase fs-7">Account Role</h6></li>
+                            <li><span class="dropdown-item-text text-muted small"><i class="bi bi-shield-lock me-1"></i> {{ current_user.role|capitalize }} Level Access</span></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger fw-semibold" href="{{ url_for('logout') }}">
+                                    <i class="bi bi-box-arrow-right me-2"></i> Sign Out
+                                </a>
+                            </li>
                         </ul>
                     </li>
                 </ul>
@@ -53,11 +71,12 @@
     <main class="{% if current_user.is_authenticated %}main-content{% endif %}">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                <div class="container mt-3">
+                <div class="container-fluid px-lg-4 mt-3">
                     {% for category, message in messages %}
-                        <div class="alert alert-{{ category }} alert-dismissible fade show">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm border-0 d-flex align-items-center gap-2" role="alert">
+                            <i class="bi bi-{% if category=='success' %}check-circle-fill text-success{% elif category=='danger' %}exclamation-triangle-fill text-danger{% else %}info-circle-fill text-info{% endif %} fs-5"></i>
+                            <div>{{ message }}</div>
+                            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     {% endfor %}
                 </div>
@@ -68,9 +87,14 @@
     </main>
 
     {% if current_user.is_authenticated %}
-    <footer class="footer mt-auto py-3 bg-light">
-        <div class="container text-center">
-            <span class="text-muted">&copy; {{ now.year }} TreqTrace — Track. Trace. Validate.</span>
+    <footer class="footer py-3 bg-white border-top text-center text-muted">
+        <div class="container-fluid px-lg-4 d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+            <div class="small fw-medium">
+                <i class="bi bi-shield-check text-primary me-1"></i> &copy; {{ now.year }} <strong>TreqTrace</strong> — Requirement Traceability & Software Validation System
+            </div>
+            <div class="small text-muted">
+                Built by <strong>Oluwagbemiga Opemipo Stephen</strong>
+            </div>
         </div>
     </footer>
     {% endif %}

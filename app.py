@@ -14,8 +14,11 @@ import io
 import csv
 from config import Config
 
-# Ensure upload folder exists
-os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)
+# Ensure upload folder exists safely
+try:
+    os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)
+except Exception:
+    pass
 
 app = Flask(__name__)
 app.config.from_object(Config)

@@ -1,46 +1,64 @@
 {% extends "base.html" %}
 {% block title %}{{ project.name }} — TreqTrace{% endblock %}
 {% block content %}
-<div class="container py-4">
+<div class="container-fluid px-lg-4 py-4">
+    <!-- Breadcrumb Nav -->
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ url_for('projects') }}">Projects</a></li>
-            <li class="breadcrumb-item active">{{ project.name }}</li>
+            <li class="breadcrumb-item"><a href="{{ url_for('projects') }}"><i class="bi bi-folder me-1"></i>Projects</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ project.name }}</li>
         </ol>
     </nav>
 
-    <div class="d-flex justify-content-between align-items-start mb-4">
-        <div>
-            <h2 class="mb-1">{{ project.name }}</h2>
-            <p class="text-muted">{{ project.description or 'No description' }}</p>
-            <span class="badge bg-{{ 'success' if project.status == 'active' else 'secondary' }}">{{ project.status }}</span>
-            <span class="text-muted small ms-2">Created {{ project.created_at.strftime('%b %d, %Y') }}</span>
-        </div>
-        <div class="d-flex gap-2">
-            <a href="{{ url_for('traceability', project_id=project.id) }}" class="btn btn-info"><i class="bi bi-link-45deg"></i> Traceability</a>
-            <a href="{{ url_for('reports', project_id=project.id) }}" class="btn btn-success"><i class="bi bi-file-earmark-text"></i> Reports</a>
+    <!-- Project Header Banner -->
+    <div class="card shadow-sm mb-4 border-start border-4 border-primary">
+        <div class="card-body p-4">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-3">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <h2 class="fw-bold mb-0 text-dark">{{ project.name }}</h2>
+                        <span class="badge bg-{{ 'success' if project.status == 'active' else 'secondary' }} fs-7">
+                            <span class="status-dot {{ 'success' if project.status == 'active' else 'secondary' }}"></span>
+                            {{ project.status|capitalize }}
+                        </span>
+                    </div>
+                    <p class="text-muted mb-2 fs-6">{{ project.description or 'No description provided.' }}</p>
+                    <div class="d-flex align-items-center gap-3 text-muted small">
+                        <span><i class="bi bi-calendar-check me-1"></i> Created: {{ project.created_at.strftime('%b %d, %Y') }}</span>
+                        <span><i class="bi bi-person me-1"></i> Owner: {{ project.creator.username if project.creator else 'System' }}</span>
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{{ url_for('traceability', project_id=project.id) }}" class="btn btn-primary shadow-sm">
+                        <i class="bi bi-diagram-3-fill me-1"></i> Traceability Matrix
+                    </a>
+                    <a href="{{ url_for('reports', project_id=project.id) }}" class="btn btn-outline-success">
+                        <i class="bi bi-file-earmark-bar-graph me-1"></i> Generate Report
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Uploaded Files Section -->
+    <!-- Uploaded Documents Card -->
     {% set uploaded_files = design_artifacts | selectattr('artifact_type', 'equalto', 'Uploaded Document') | list %}
     {% if uploaded_files %}
     <div class="card shadow-sm mb-4">
-        <div class="card-header bg-white d-flex justify-content-between align-items-center">
-            <h5 class="mb-0"><i class="bi bi-paperclip text-primary"></i> Project Documents ({{ uploaded_files|length }})</h5>
+        <div class="card-header bg-white d-flex align-items-center justify-content-between">
+            <h5 class="mb-0 fw-bold fs-6"><i class="bi bi-paperclip text-primary me-2"></i> Project Specification Documents ({{ uploaded_files|length }})</h5>
         </div>
         <div class="card-body">
-            <div class="row g-2">
+            <div class="row g-3">
                 {% for file in uploaded_files %}
-                <div class="col-md-4 col-lg-3">
+                <div class="col-12 col-md-6 col-lg-3">
                     <a href="{{ url_for('download_file', filename=file.reference_link) }}" class="text-decoration-none">
-                        <div class="file-card d-flex align-items-center p-3 bg-white rounded border">
-                            <div class="file-icon me-3">
-                                <i class="bi bi-file-earmark-text display-6 text-primary"></i>
+                        <div class="stat-card-dashboard p-3 h-100 d-flex align-items-center gap-3">
+                            <div class="stat-icon bg-primary-light">
+                                <i class="bi bi-file-earmark-pdf fs-3 text-primary"></i>
                             </div>
                             <div class="overflow-hidden">
-                                <h6 class="mb-0 text-dark text-truncate">{{ file.name }}</h6>
-                                <small class="text-muted">{{ file.artifact_type }}</small>
+                                <h6 class="fw-bold mb-0 text-dark text-truncate" title="{{ file.name }}">{{ file.name }}</h6>
+                                <span class="text-muted small">Click to Download</span>
                             </div>
                         </div>
                     </a>
@@ -51,59 +69,92 @@
     </div>
     {% endif %}
 
-    <!-- Upload More Files -->
+    <!-- Upload Specification Files -->
     <div class="card shadow-sm mb-4">
         <div class="card-header bg-white">
-            <h5 class="mb-0"><i class="bi bi-cloud-upload text-primary"></i> Upload More Files</h5>
+            <h5 class="mb-0 fw-bold fs-6"><i class="bi bi-cloud-arrow-up text-primary me-2"></i> Upload Requirements / SRS Documents</h5>
         </div>
         <div class="card-body">
             <form method="POST" action="{{ url_for('upload_project_file', project_id=project.id) }}" enctype="multipart/form-data">
                 <div class="input-group">
                     <input type="file" name="project_files" class="form-control" multiple accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.md">
-                    <button type="submit" class="btn btn-primary"><i class="bi bi-upload"></i> Upload</button>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-upload me-1"></i> Upload Files</button>
                 </div>
-                <div class="form-text text-muted small">Upload SRS, design documents, or reference files. Accepted: PDF, Word, Images, TXT.</div>
+                <div class="form-text text-muted small mt-2">
+                    <i class="bi bi-info-circle me-1"></i> Upload Software Requirement Specifications (SRS), architecture diagrams, or test plan documents (.pdf, .docx, .md, .png).
+                </div>
             </form>
         </div>
     </div>
 
-    <!-- Requirements Section -->
+    <!-- Requirements Table Card -->
     <div class="card shadow-sm mb-4">
-        <div class="card-header bg-white d-flex justify-content-between align-items-center">
-            <h5 class="mb-0"><i class="bi bi-file-text text-primary"></i> Requirements ({{ requirements|length }})</h5>
-            <a href="{{ url_for('new_requirement', project_id=project.id) }}" class="btn btn-sm btn-primary"><i class="bi bi-plus-lg"></i> Add Requirement</a>
+        <div class="card-header bg-white d-flex align-items-center justify-content-between">
+            <h5 class="mb-0 fw-bold fs-6"><i class="bi bi-file-text-fill text-primary me-2"></i> Requirements Traceability ({{ requirements|length }})</h5>
+            <a href="{{ url_for('new_requirement', project_id=project.id) }}" class="btn btn-sm btn-primary">
+                <i class="bi bi-plus-lg me-1"></i> Add Requirement
+            </a>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
                         <tr>
-                            <th>ID</th><th>Title</th><th>Type</th><th>Priority</th><th>Status</th>
-                            <th>Design</th><th>Tests</th><th>Validation</th><th class="text-end">Actions</th>
+                            <th style="min-width: 100px;">Req ID</th>
+                            <th style="min-width: 220px;">Title</th>
+                            <th>Type</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Design Links</th>
+                            <th>Test Links</th>
+                            <th>Validation</th>
+                            <th class="text-end" style="min-width: 160px;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for req in requirements %}
                         {% set val = req.get_validation_status() %}
                         <tr>
-                            <td><a href="{{ url_for('view_requirement', id=req.id) }}" class="fw-bold text-decoration-none">{{ req.req_id }}</a></td>
-                            <td>{{ req.title[:50] }}{% if req.title|length > 50 %}...{% endif %}</td>
-                            <td><span class="badge bg-outline-secondary">{{ req.req_type }}</span></td>
-                            <td><span class="badge bg-{{ 'danger' if req.priority == 'high' else 'warning' if req.priority == 'medium' else 'info' }}">{{ req.priority }}</span></td>
-                            <td><span class="badge bg-secondary">{{ req.status }}</span></td>
-                            <td class="text-center"><span class="badge bg-light text-dark">{{ req.get_design_count() }}</span></td>
-                            <td class="text-center"><span class="badge bg-light text-dark">{{ req.get_test_count() }}</span></td>
-                            <td><span class="badge bg-{{ val.badge }}">{{ val.label }}</span></td>
+                            <td>
+                                <a href="{{ url_for('view_requirement', id=req.id) }}" class="fw-bold text-primary text-decoration-none">
+                                    {{ req.req_id }}
+                                </a>
+                            </td>
+                            <td class="fw-medium text-dark">
+                                {{ req.title[:55] }}{% if req.title|length > 55 %}...{% endif %}
+                            </td>
+                            <td><span class="badge bg-light text-dark border">{{ req.req_type|capitalize }}</span></td>
+                            <td>
+                                <span class="badge bg-{{ 'danger' if req.priority == 'high' else 'warning' if req.priority == 'medium' else 'info' }}">
+                                    {{ req.priority|capitalize }}
+                                </span>
+                            </td>
+                            <td><span class="badge bg-secondary">{{ req.status|capitalize }}</span></td>
+                            <td class="text-center"><span class="badge bg-info-light text-info fw-bold fs-7">{{ req.get_design_count() }}</span></td>
+                            <td class="text-center"><span class="badge bg-warning-light text-warning fw-bold fs-7">{{ req.get_test_count() }}</span></td>
+                            <td>
+                                <span class="badge bg-{{ val.badge }}">
+                                    <span class="status-dot {{ 'success' if val.status == 'validated' else 'danger' if val.status == 'failed' else 'warning' }}"></span>
+                                    {{ val.label }}
+                                </span>
+                            </td>
                             <td class="text-end">
-                                <a href="{{ url_for('view_requirement', id=req.id) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a>
-                                <a href="{{ url_for('edit_requirement', id=req.id) }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
-                                <form action="{{ url_for('delete_requirement', id=req.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this requirement?');">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
-                                </form>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{{ url_for('view_requirement', id=req.id) }}" class="btn btn-outline-primary" title="View"><i class="bi bi-eye"></i></a>
+                                    <a href="{{ url_for('edit_requirement', id=req.id) }}" class="btn btn-outline-secondary" title="Edit"><i class="bi bi-pencil"></i></a>
+                                    <form action="{{ url_for('delete_requirement', id=req.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this requirement?');">
+                                        <button type="submit" class="btn btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                         {% else %}
-                        <tr><td colspan="9" class="text-center text-muted py-4">No requirements yet. <a href="{{ url_for('new_requirement', project_id=project.id) }}">Add one</a></td></tr>
+                        <tr>
+                            <td colspan="9" class="text-center text-muted py-5">
+                                <i class="bi bi-file-earmark-plus display-5 d-block mb-2 text-secondary"></i>
+                                No requirements defined yet. <a href="{{ url_for('new_requirement', project_id=project.id) }}" class="fw-bold">Add your first requirement</a>
+                            </td>
+                        </tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -112,61 +163,83 @@
     </div>
 
     <div class="row g-4">
-        <!-- Design Artifacts -->
+        <!-- Design Artifacts Column -->
         <div class="col-lg-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="bi bi-diagram-3 text-info"></i> Design Artifacts ({{ design_artifacts|length }})</h5>
-                    <a href="{{ url_for('new_design', project_id=project.id) }}" class="btn btn-sm btn-info"><i class="bi bi-plus-lg"></i> Add</a>
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0 fw-bold fs-6"><i class="bi bi-diagram-2-fill text-info me-2"></i> Design Artifacts ({{ design_artifacts|length }})</h5>
+                    <a href="{{ url_for('new_design', project_id=project.id) }}" class="btn btn-sm btn-info text-white">
+                        <i class="bi bi-plus-lg me-1"></i> Add Artifact
+                    </a>
                 </div>
                 <div class="card-body p-0">
                     <div class="list-group list-group-flush">
                         {% for art in design_artifacts %}
-                        <div class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-0">{{ art.name }}</h6>
-                                <small class="text-muted">{{ art.artifact_type }}</small>
+                        <div class="list-group-item d-flex align-items-center justify-content-between py-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="stat-icon bg-info-light">
+                                    <i class="bi bi-diagram-3 text-info"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold text-dark mb-0">{{ art.name }}</h6>
+                                    <span class="badge bg-light text-muted border mt-1">{{ art.artifact_type }}</span>
+                                </div>
                             </div>
-                            {% if art.artifact_type == 'Uploaded Document' %}
-                            <a href="{{ url_for('download_file', filename=art.reference_link) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-download"></i></a>
-                            {% else %}
-                            <form action="{{ url_for('delete_design', id=art.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete?');">
-                                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
-                            </form>
-                            {% endif %}
+                            <div>
+                                {% if art.artifact_type == 'Uploaded Document' %}
+                                <a href="{{ url_for('download_file', filename=art.reference_link) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-download"></i> Download</a>
+                                {% else %}
+                                <form action="{{ url_for('delete_design', id=art.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete artifact?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                </form>
+                                {% endif %}
+                            </div>
                         </div>
                         {% else %}
-                        <div class="list-group-item text-center text-muted py-4">No design artifacts</div>
+                        <div class="list-group-item text-center text-muted py-4">
+                            No design artifacts linked yet. <a href="{{ url_for('new_design', project_id=project.id) }}">Add design model</a>
+                        </div>
                         {% endfor %}
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Test Cases -->
+        <!-- Test Cases Column -->
         <div class="col-lg-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="bi bi-bug text-warning"></i> Test Cases ({{ test_cases|length }})</h5>
-                    <a href="{{ url_for('new_test_case', project_id=project.id) }}" class="btn btn-sm btn-warning"><i class="bi bi-plus-lg"></i> Add</a>
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0 fw-bold fs-6"><i class="bi bi-ui-checks text-warning me-2"></i> Test Cases ({{ test_cases|length }})</h5>
+                    <a href="{{ url_for('new_test_case', project_id=project.id) }}" class="btn btn-sm btn-warning text-dark">
+                        <i class="bi bi-plus-lg me-1"></i> Add Test Case
+                    </a>
                 </div>
                 <div class="card-body p-0">
                     <div class="list-group list-group-flush">
                         {% for tc in test_cases %}
-                        <div class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-0">{{ tc.tc_id }} — {{ tc.title }}</h6>
-                                <small class="text-muted"><span class="badge bg-{{ 'success' if tc.status == 'passed' else 'danger' if tc.status == 'failed' else 'secondary' }}">{{ tc.status }}</span></small>
+                        <div class="list-group-item d-flex align-items-center justify-content-between py-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="stat-icon bg-warning-light">
+                                    <i class="bi bi-bug text-warning"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold text-dark mb-0">{{ tc.tc_id }} — {{ tc.title }}</h6>
+                                    <span class="badge bg-{{ 'success' if tc.status == 'passed' else 'danger' if tc.status == 'failed' else 'secondary' }} mt-1">
+                                        {{ tc.status|capitalize }}
+                                    </span>
+                                </div>
                             </div>
-                            <div>
+                            <div class="d-flex gap-1">
                                 <a href="{{ url_for('edit_test_case', id=tc.id) }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
-                                <form action="{{ url_for('delete_test_case', id=tc.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete?');">
+                                <form action="{{ url_for('delete_test_case', id=tc.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete test case?');">
                                     <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
                                 </form>
                             </div>
                         </div>
                         {% else %}
-                        <div class="list-group-item text-center text-muted py-4">No test cases</div>
+                        <div class="list-group-item text-center text-muted py-4">
+                            No test cases created yet. <a href="{{ url_for('new_test_case', project_id=project.id) }}">Add test case</a>
+                        </div>
                         {% endfor %}
                     </div>
                 </div>
