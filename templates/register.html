@@ -1,47 +1,39 @@
 {% extends "base.html" %}
 {% block title %}Create Account — TreqTrace{% endblock %}
 {% block content %}
-<div class="auth-page py-5">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-12 col-sm-10 col-md-6 col-lg-5">
-                <div class="auth-card shadow-lg border-0">
-                    <div class="text-center mb-4">
-                        <h2 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">TreqTrace</h2>
-                        <p class="text-muted small">Requirement Traceability & Software Validation System</p>
-                    </div>
-                    <form method="POST">
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold small">Username</label>
-                            <input type="text" name="username" class="form-control" placeholder="Choose a username" required autofocus>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold small">Email Address</label>
-                            <input type="email" name="email" class="form-control" placeholder="name@company.com" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold small">System Role</label>
-                            <select name="role" class="form-select">
-                                <option value="developer">Developer</option>
-                                <option value="tester">Software Tester / QA</option>
-                                <option value="admin">Administrator</option>
-                            </select>
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold small">Password</label>
-                            <input type="password" name="password" class="form-control" placeholder="Create a strong password" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100 py-2 shadow-sm fw-bold">
-                            Create Account
-                        </button>
-                    </form>
-                    <hr class="my-4">
-                    <div class="text-center">
-                        <p class="mb-0 text-muted small">Already have an account? <a href="{{ url_for('login') }}" class="fw-bold text-primary text-decoration-none">Sign In</a></p>
-                    </div>
-                </div>
-            </div>
+<div class="auth-container">
+    <div class="text-center mb-4">
+        <h2 class="auth-title">TreqTrace</h2>
+        <p class="text-muted small">Requirement Traceability & Software Validation</p>
+    </div>
+    <form method="POST">
+        <div class="mb-3">
+            <label class="form-label fw-semibold small text-muted">Username</label>
+            <input type="text" name="username" class="form-control" placeholder="Choose a username" required autofocus>
         </div>
+        <div class="mb-3">
+            <label class="form-label fw-semibold small text-muted">Email Address</label>
+            <input type="email" name="email" class="form-control" placeholder="name@company.com" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-semibold small text-muted">System Role</label>
+            <select name="role" class="form-select">
+                <option value="developer">Developer</option>
+                <option value="tester">Software Tester / QA</option>
+                <option value="admin">Administrator</option>
+            </select>
+        </div>
+        <div class="mb-4">
+            <label class="form-label fw-semibold small text-muted">Password</label>
+            <input type="password" name="password" class="form-control" placeholder="Create a strong password" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
+            Create Account
+        </button>
+    </form>
+    <hr class="my-4" style="border-color: var(--border);">
+    <div class="text-center">
+        <p class="mb-0 text-muted small">Already have an account? <a href="{{ url_for('login') }}" class="fw-bold text-primary text-decoration-none">Sign In</a></p>
     </div>
 </div>
 {% endblock %}

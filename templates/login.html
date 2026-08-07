@@ -1,38 +1,32 @@
 {% extends "base.html" %}
 {% block title %}Sign In — TreqTrace{% endblock %}
 {% block content %}
-<div class="auth-page py-5">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-12 col-sm-10 col-md-6 col-lg-5">
-                <div class="auth-card shadow-lg border-0">
-                    <div class="text-center mb-4">
-                        <h2 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">TreqTrace</h2>
-                        <p class="text-muted small">Requirement Traceability & Software Validation System</p>
-                    </div>
-                    <form method="POST">
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold small">Username</label>
-                            <input type="text" name="username" class="form-control" placeholder="Enter your username" required autofocus>
-                        </div>
-                        <div class="mb-4">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <label class="form-label fw-semibold small mb-0">Password</label>
-                            </div>
-                            <input type="password" name="password" class="form-control" placeholder="Enter password" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100 py-2 shadow-sm fw-bold">
-                            Sign In
-                        </button>
-                    </form>
-                    <hr class="my-4">
-                    <div class="text-center">
-                        <p class="mb-2 text-muted small">Don't have an account? <a href="{{ url_for('register') }}" class="fw-bold text-primary text-decoration-none">Create Account</a></p>
-                        <div class="bg-light p-2 rounded text-muted small">
-                            Demo Credentials: <strong>admin</strong> / <strong>admin123</strong>
-                        </div>
-                    </div>
-                </div>
+<div class="auth-container">
+    <div class="text-center mb-4">
+        <h2 class="auth-title">TreqTrace</h2>
+        <p class="text-muted small">Requirement Traceability & Software Validation</p>
+    </div>
+    <form method="POST">
+        <div class="mb-3">
+            <label class="form-label fw-semibold small text-muted">Username</label>
+            <input type="text" name="username" class="form-control" placeholder="Enter your username" required autofocus>
+        </div>
+        <div class="mb-4">
+            <label class="form-label fw-semibold small text-muted">Password</label>
+            <input type="password" name="password" class="form-control" placeholder="Enter password" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
+            Sign In
+        </button>
+    </form>
+    <hr class="my-4" style="border-color: var(--border);">
+    <div class="text-center">
+        <p class="mb-3 text-muted small">Don't have an account? <a href="{{ url_for('register') }}" class="fw-bold text-primary text-decoration-none">Create Account</a></p>
+        <div class="p-3 rounded small text-start" style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border);">
+            <span class="text-muted">Demo Credentials:</span>
+            <div class="d-flex justify-content-between mt-1">
+                <span>Username: <strong class="text-white">admin</strong></span>
+                <span>Password: <strong class="text-white">admin123</strong></span>
             </div>
         </div>
     </div>
