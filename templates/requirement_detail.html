@@ -1,118 +1,204 @@
 {% extends "base.html" %}
-{% block title %}{{ requirement.req_id }} — TreqTrace{% endblock %}
+{% block title %}{{ requirement.req_id }} — Bento Requirement Editor — TreqTrace{% endblock %}
 {% block content %}
-<div class="container py-4">
+<div class="container-fluid px-lg-4 py-4">
+    <!-- Breadcrumb Nav -->
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ url_for('projects') }}">Projects</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('projects') }}"><i class="bi bi-folder me-1"></i>Projects</a></li>
             <li class="breadcrumb-item"><a href="{{ url_for('view_project', id=project.id) }}">{{ project.name }}</a></li>
-            <li class="breadcrumb-item active">{{ requirement.req_id }}</li>
+            <li class="breadcrumb-item active" aria-current="page">{{ requirement.req_id }}</li>
         </ol>
     </nav>
 
-    <div class="row g-4">
-        <div class="col-lg-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <div>
-                        <h4 class="mb-0">{{ requirement.req_id }}</h4>
-                        <span class="badge bg-{{ 'danger' if requirement.priority == 'high' else 'warning' if requirement.priority == 'medium' else 'info' }}">{{ requirement.priority }}</span>
-                        <span class="badge bg-secondary">{{ requirement.req_type }}</span>
-                    </div>
-                    <div>
-                        <span class="badge bg-{{ 'success' if requirement.status == 'validated' else 'info' }} fs-6">{{ requirement.status }}</span>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <h5>{{ requirement.title }}</h5>
-                    <p class="text-muted">{{ requirement.description or 'No description' }}</p>
-                    <hr>
-                    <div class="row text-muted small">
-                        <div class="col-md-6">Version: <strong>v{{ requirement.version }}</strong></div>
-                        <div class="col-md-6">Updated: <strong>{{ requirement.updated_at.strftime('%Y-%m-%d %H:%M') }}</strong></div>
-                    </div>
-                </div>
+    <!-- Top Action Banner -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge bg-primary fs-6 px-3 py-2 fw-bold"><i class="bi bi-file-text me-1"></i> {{ requirement.req_id }}</span>
+                <span class="badge bg-light text-dark border"><i class="bi bi-layers me-1"></i> v{{ requirement.version }}</span>
+                <span class="badge bg-{{ 'danger' if requirement.priority == 'high' else 'warning' if requirement.priority == 'medium' else 'info' }}">
+                    {{ requirement.priority|capitalize }} Priority
+                </span>
             </div>
+            <h2 class="fw-bold text-dark mb-0">{{ requirement.title }}</h2>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('edit_requirement', id=requirement.id) }}" class="btn btn-primary shadow-sm">
+                <i class="bi bi-pencil-square me-1"></i> Edit Requirement
+            </a>
+            <a href="{{ url_for('traceability', project_id=project.id) }}" class="btn btn-outline-info">
+                <i class="bi bi-diagram-3 me-1"></i> Traceability Matrix
+            </a>
+        </div>
+    </div>
 
-            <!-- Linked Artifacts -->
-            <div class="card shadow-sm mt-4">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="bi bi-link-45deg text-primary"></i> Linked Artifacts</h5>
+    <!-- Bento Grid Container -->
+    <div class="row g-4">
+        <!-- Bento Card 1: Requirement Specification Details (Col-8 Top) -->
+        <div class="col-12 col-lg-8">
+            <div class="card shadow-sm h-100 border-start border-4 border-primary">
+                <div class="card-header bg-white d-flex align-items-center justify-content-between py-3">
+                    <h5 class="mb-0 fw-bold fs-6"><i class="bi bi-card-heading text-primary me-2"></i> Specification & Details</h5>
+                    <span class="badge bg-secondary">{{ requirement.req_type|capitalize }} Requirement</span>
                 </div>
-                <div class="card-body">
-                    <h6 class="text-muted">Design Artifacts ({{ linked_designs|length }})</h6>
-                    {% if linked_designs %}
-                    <div class="list-group mb-3">
-                        {% for d in linked_designs %}
-                        <div class="list-group-item">
-                            <strong>{{ d.name }}</strong> <span class="badge bg-light text-dark">{{ d.artifact_type }}</span>
-                            <p class="mb-0 small text-muted">{{ d.description or '' }}</p>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <p class="text-muted">No design artifacts linked.</p>
-                    {% endif %}
+                <div class="card-body p-4">
+                    <h6 class="fw-semibold text-muted mb-2 text-uppercase fs-7">Description & Scope</h6>
+                    <p class="fs-6 text-dark lead mb-4" style="line-height: 1.6;">
+                        {{ requirement.description if requirement.description else 'No detailed description provided.' }}
+                    </p>
 
-                    <h6 class="text-muted">Test Cases ({{ linked_tests|length }})</h6>
-                    {% if linked_tests %}
-                    <div class="list-group">
-                        {% for t in linked_tests %}
-                        <div class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>{{ t.tc_id }}</strong> — {{ t.title }}
-                                <p class="mb-0 small text-muted">Expected: {{ t.expected_result or '-' }}</p>
-                            </div>
-                            <span class="badge bg-{{ 'success' if t.status == 'passed' else 'danger' if t.status == 'failed' else 'secondary' }}">{{ t.status }}</span>
+                    <div class="row g-3 pt-3 border-top text-muted small">
+                        <div class="col-6 col-md-3">
+                            <span class="d-block text-uppercase fw-semibold fs-7 text-muted">Author</span>
+                            <span class="fw-bold text-dark fs-6"><i class="bi bi-person me-1"></i> {{ requirement.author.username if requirement.author else 'System' }}</span>
                         </div>
-                        {% endfor %}
+                        <div class="col-6 col-md-3">
+                            <span class="d-block text-uppercase fw-semibold fs-7 text-muted">Lifecycle State</span>
+                            <span class="badge bg-info mt-1">{{ requirement.status|capitalize }}</span>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <span class="d-block text-uppercase fw-semibold fs-7 text-muted">Created</span>
+                            <span class="fw-medium text-dark"><i class="bi bi-calendar3 me-1"></i> {{ requirement.created_at.strftime('%b %d, %Y') }}</span>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <span class="d-block text-uppercase fw-semibold fs-7 text-muted">Last Updated</span>
+                            <span class="fw-medium text-dark"><i class="bi bi-clock-history me-1"></i> {{ requirement.updated_at.strftime('%b %d, %Y') }}</span>
+                        </div>
                     </div>
-                    {% else %}
-                    <p class="text-muted">No test cases linked.</p>
-                    {% endif %}
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-4">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h6 class="mb-0">Validation Status</h6>
+        <!-- Bento Card 2: Live Validation Status Gauge (Col-4 Top) -->
+        <div class="col-12 col-lg-4">
+            {% set val = requirement.get_validation_status() %}
+            <div class="card shadow-sm h-100 text-center border-0 bg-white">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold fs-6"><i class="bi bi-shield-check text-success me-2"></i> Validation Status</h5>
                 </div>
-                <div class="card-body">
-                    {% set val = requirement.get_validation_status() %}
-                    <div class="text-center">
-                        <div class="display-4 mb-2">
-                            <i class="bi bi-{{ 'check-circle-fill text-success' if val.status == 'validated' else 'x-circle-fill text-danger' if val.status == 'failed' else 'exclamation-circle-fill text-warning' if val.status in ['not_traced','not_tested'] else 'arrow-repeat text-info' }}"></i>
+                <div class="card-body d-flex flex-column align-items-center justify-content-center p-4">
+                    <div class="stat-icon bg-{{ val.badge }}-light mb-3" style="width: 70px; height: 70px; font-size: 2.2rem;">
+                        <i class="bi bi-{{ 'check-circle-fill text-success' if val.status == 'validated' else 'x-circle-fill text-danger' if val.status == 'failed' else 'exclamation-triangle-fill text-warning' if val.status in ['not_traced','not_tested'] else 'arrow-repeat text-info' }}"></i>
+                    </div>
+                    <h4 class="fw-bold text-{{ val.badge }} mb-1">{{ val.label }}</h4>
+                    <p class="text-muted small mb-3">Live verification based on linked test cases</p>
+
+                    <div class="w-100 bg-light rounded p-3 d-flex justify-content-around text-center mt-auto">
+                        <div>
+                            <span class="d-block fw-bold fs-5 text-dark">{{ requirement.get_design_count() }}</span>
+                            <span class="text-muted small">Design Links</span>
                         </div>
-                        <h5 class="text-{{ val.badge }}">{{ val.label }}</h5>
-                        <p class="small text-muted">Based on linked test case results</p>
+                        <div class="border-start"></div>
+                        <div>
+                            <span class="d-block fw-bold fs-5 text-dark">{{ requirement.get_test_count() }}</span>
+                            <span class="text-muted small">Test Cases</span>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="card shadow-sm mt-3">
-                <div class="card-header bg-white">
-                    <h6 class="mb-0">Version History</h6>
+        <!-- Bento Card 3: Design Artifacts Grid (Col-6 Bottom Left) -->
+        <div class="col-12 col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white d-flex align-items-center justify-content-between py-3">
+                    <h5 class="mb-0 fw-bold fs-6"><i class="bi bi-diagram-2-fill text-info me-2"></i> Linked Design Artifacts ({{ linked_designs|length }})</h5>
+                    <a href="{{ url_for('traceability', project_id=project.id) }}" class="btn btn-sm btn-outline-info">
+                        <i class="bi bi-link-45deg me-1"></i> Link Artifact
+                    </a>
                 </div>
                 <div class="card-body p-0">
-                    <ul class="list-group list-group-flush">
-                        {% for v in versions %}
-                        <li class="list-group-item">
-                            <small class="fw-bold">v{{ v.version }}</small>
-                            <span class="badge bg-secondary">{{ v.status }}</span>
-                            <p class="mb-0 small text-muted">{{ v.change_note or 'Update' }} — {{ v.user.username if v.user else 'Unknown' }}</p>
-                        </li>
+                    <div class="list-group list-group-flush">
+                        {% for d in linked_designs %}
+                        <div class="list-group-item p-3">
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <h6 class="fw-bold text-dark mb-0"><i class="bi bi-file-earmark-code text-info me-2"></i> {{ d.name }}</h6>
+                                <span class="badge bg-light text-dark border">{{ d.artifact_type }}</span>
+                            </div>
+                            <p class="text-muted small mb-0">{{ d.description or 'No description provided for this design artifact.' }}</p>
+                        </div>
                         {% else %}
-                        <li class="list-group-item text-muted">No history</li>
+                        <div class="list-group-item text-center text-muted py-4">
+                            <i class="bi bi-diagram-2 display-6 d-block mb-2 text-secondary"></i>
+                            No design artifacts linked to this requirement yet.
+                        </div>
                         {% endfor %}
-                    </ul>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <div class="d-grid gap-2 mt-3">
-                <a href="{{ url_for('edit_requirement', id=requirement.id) }}" class="btn btn-outline-primary"><i class="bi bi-pencil"></i> Edit Requirement</a>
-                <a href="{{ url_for('traceability', project_id=project.id) }}" class="btn btn-outline-info"><i class="bi bi-link-45deg"></i> Manage Traceability</a>
+        <!-- Bento Card 4: Test Cases Verification Grid (Col-6 Bottom Right) -->
+        <div class="col-12 col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white d-flex align-items-center justify-content-between py-3">
+                    <h5 class="mb-0 fw-bold fs-6"><i class="bi bi-ui-checks text-warning me-2"></i> Linked Test Cases ({{ linked_tests|length }})</h5>
+                    <a href="{{ url_for('traceability', project_id=project.id) }}" class="btn btn-sm btn-outline-warning">
+                        <i class="bi bi-link-45deg me-1"></i> Link Test
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for t in linked_tests %}
+                        <div class="list-group-item p-3">
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <h6 class="fw-bold text-dark mb-0">
+                                    <i class="bi bi-bug text-warning me-2"></i> {{ t.tc_id }} — {{ t.title }}
+                                </h6>
+                                <span class="badge bg-{{ 'success' if t.status == 'passed' else 'danger' if t.status == 'failed' else 'secondary' }}">
+                                    {{ t.status|capitalize }}
+                                </span>
+                            </div>
+                            <p class="text-muted small mb-0">Expected: <em>{{ t.expected_result or 'Not specified' }}</em></p>
+                        </div>
+                        {% else %}
+                        <div class="list-group-item text-center text-muted py-4">
+                            <i class="bi bi-bug display-6 d-block mb-2 text-secondary"></i>
+                            No test cases linked to verify this requirement.
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bento Card 5: Version Audit Timeline (Col-12 Bottom) -->
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold fs-6"><i class="bi bi-clock-history text-primary me-2"></i> Version Audit History</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Version</th>
+                                    <th>Title</th>
+                                    <th>Status</th>
+                                    <th>Changed By</th>
+                                    <th>Timestamp</th>
+                                    <th>Change Note</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for v in versions %}
+                                <tr>
+                                    <td class="fw-bold text-primary">v{{ v.version }}</td>
+                                    <td class="fw-medium text-dark">{{ v.title }}</td>
+                                    <td><span class="badge bg-secondary">{{ v.status|capitalize }}</span></td>
+                                    <td><i class="bi bi-person me-1"></i> {{ v.user.username if v.user else 'System' }}</td>
+                                    <td class="text-muted small">{{ v.changed_at.strftime('%b %d, %Y at %H:%M') }}</td>
+                                    <td class="text-muted small">{{ v.change_note or 'Initial creation' }}</td>
+                                </tr>
+                                {% else %}
+                                <tr><td colspan="6" class="text-center text-muted py-3">No previous versions logged.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

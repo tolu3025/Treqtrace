@@ -1,102 +1,135 @@
 {% extends "base.html" %}
-{% block title %}{{ 'Edit' if requirement else 'New' }} Requirement — TreqTrace{% endblock %}
+{% block title %}{{ 'Edit' if requirement else 'New' }} Requirement — Bento Editor — TreqTrace{% endblock %}
 {% block content %}
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h4 class="mb-0">
-                        <i class="bi bi-{{ 'pencil' if requirement else 'plus-circle' }} text-primary"></i>
-                        {{ 'Edit' if requirement else 'New' }} Requirement
-                    </h4>
+<div class="container-fluid px-lg-4 py-4">
+    <!-- Breadcrumb Nav -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('projects') }}"><i class="bi bi-folder me-1"></i>Projects</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('view_project', id=project.id) }}">{{ project.name }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ 'Edit' if requirement else 'New' }} Requirement</li>
+        </ol>
+    </nav>
+
+    <!-- Header Section -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <h2 class="fw-bold mb-1 d-flex align-items-center gap-2">
+                <i class="bi bi-{{ 'pencil-square' if requirement else 'plus-circle-fill' }} text-primary"></i>
+                {{ 'Edit' if requirement else 'Create' }} Requirement Specifications
+            </h2>
+            <p class="text-muted mb-0">Project: <strong>{{ project.name }}</strong></p>
+        </div>
+    </div>
+
+    <!-- Bento Form Layout -->
+    <div class="row g-4">
+        <div class="col-12 col-lg-8">
+            <div class="card shadow-sm border-start border-4 border-primary">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold fs-6"><i class="bi bi-file-earmark-text text-primary me-2"></i> Requirement Parameters</h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4">
                     <form method="POST">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Requirement ID</label>
-                                <input type="text" name="req_id" class="form-control" value="{{ requirement.req_id if requirement else '' }}" placeholder="e.g., REQ-001" required>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">Requirement ID <span class="text-danger">*</span></label>
+                                <input type="text" name="req_id" class="form-control" value="{{ requirement.req_id if requirement else '' }}" placeholder="e.g. REQ-001" required>
+                                <div class="form-text small">Unique identifier (e.g., REQ-AUTH-01).</div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Title</label>
-                                <input type="text" name="title" class="form-control" value="{{ requirement.title if requirement else '' }}" required>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">Requirement Title <span class="text-danger">*</span></label>
+                                <input type="text" name="title" class="form-control" value="{{ requirement.title if requirement else '' }}" placeholder="e.g. User Authentication via OAuth2" required>
                             </div>
                         </div>
+
                         <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea name="description" class="form-control" rows="4">{{ requirement.description if requirement else '' }}</textarea>
+                            <label class="form-label fw-semibold small">Detailed Description</label>
+                            <textarea name="description" class="form-control" rows="5" placeholder="Specify functional requirements, constraints, or acceptance criteria...">{{ requirement.description if requirement else '' }}</textarea>
                         </div>
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Type</label>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold small">Requirement Type</label>
                                 <select name="req_type" class="form-select">
                                     <option value="functional" {{ 'selected' if requirement and requirement.req_type == 'functional' else '' }}>Functional</option>
                                     <option value="non-functional" {{ 'selected' if requirement and requirement.req_type == 'non-functional' else '' }}>Non-Functional</option>
+                                    <option value="business" {{ 'selected' if requirement and requirement.req_type == 'business' else '' }}>Business Rule</option>
                                 </select>
                             </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Priority</label>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold small">Priority Level</label>
                                 <select name="priority" class="form-select">
-                                    <option value="high" {{ 'selected' if requirement and requirement.priority == 'high' else '' }}>High</option>
-                                    <option value="medium" {{ 'selected' if requirement and requirement.priority == 'medium' else '' }}>Medium</option>
-                                    <option value="low" {{ 'selected' if requirement and requirement.priority == 'low' else '' }}>Low</option>
+                                    <option value="high" {{ 'selected' if requirement and requirement.priority == 'high' else '' }}>High Priority</option>
+                                    <option value="medium" {{ 'selected' if requirement and requirement.priority == 'medium' else '' }}>Medium Priority</option>
+                                    <option value="low" {{ 'selected' if requirement and requirement.priority == 'low' else '' }}>Low Priority</option>
                                 </select>
                             </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Status</label>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold small">Lifecycle Status</label>
                                 <select name="status" class="form-select">
                                     <option value="draft" {{ 'selected' if requirement and requirement.status == 'draft' else '' }}>Draft</option>
                                     <option value="approved" {{ 'selected' if requirement and requirement.status == 'approved' else '' }}>Approved</option>
                                     <option value="implemented" {{ 'selected' if requirement and requirement.status == 'implemented' else '' }}>Implemented</option>
                                     <option value="tested" {{ 'selected' if requirement and requirement.status == 'tested' else '' }}>Tested</option>
                                     <option value="validated" {{ 'selected' if requirement and requirement.status == 'validated' else '' }}>Validated</option>
-                                    <option value="deprecated" {{ 'selected' if requirement and requirement.status == 'deprecated' else '' }}>Deprecated</option>
                                 </select>
                             </div>
                         </div>
+
                         {% if requirement %}
-                        <div class="mb-3">
-                            <label class="form-label">Change Note</label>
-                            <input type="text" name="change_note" class="form-control" placeholder="Brief description of changes">
+                        <div class="mb-4 p-3 bg-light rounded border">
+                            <label class="form-label fw-semibold small text-primary mb-1"><i class="bi bi-journal-text me-1"></i> Audit Change Note</label>
+                            <input type="text" name="change_note" class="form-control" placeholder="Describe what changed in this version (e.g. Updated OAuth scope requirements)...">
                         </div>
                         {% endif %}
+
                         <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">{{ 'Update' if requirement else 'Create' }} Requirement</button>
+                            <button type="submit" class="btn btn-primary shadow-sm px-4 fw-bold">
+                                <i class="bi bi-check-lg me-1"></i> {{ 'Save Changes' if requirement else 'Create Requirement' }}
+                            </button>
                             <a href="{{ url_for('view_project', id=project.id) }}" class="btn btn-outline-secondary">Cancel</a>
                         </div>
                     </form>
                 </div>
             </div>
+        </div>
 
-            {% if requirement and versions %}
-            <div class="card shadow-sm mt-4">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="bi bi-clock-history"></i> Version History</h5>
+        <div class="col-12 col-lg-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold fs-6"><i class="bi bi-info-circle text-info me-2"></i> Guideline & Best Practices</h5>
                 </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-sm mb-0">
-                            <thead class="table-light">
-                                <tr><th>Version</th><th>Title</th><th>Status</th><th>Changed By</th><th>Date</th><th>Note</th></tr>
-                            </thead>
-                            <tbody>
-                                {% for v in versions %}
-                                <tr>
-                                    <td>v{{ v.version }}</td>
-                                    <td>{{ v.title }}</td>
-                                    <td><span class="badge bg-secondary">{{ v.status }}</span></td>
-                                    <td>{{ v.user.username if v.user else 'Unknown' }}</td>
-                                    <td class="small text-muted">{{ v.changed_at.strftime('%Y-%m-%d %H:%M') }}</td>
-                                    <td class="small text-muted">{{ v.change_note or '-' }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                <div class="card-body">
+                    <div class="d-flex gap-3 mb-3">
+                        <div class="stat-icon bg-primary-light flex-shrink-0">
+                            <i class="bi bi-hash text-primary"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold text-dark mb-1">Standardized Req ID</h6>
+                            <p class="text-muted small mb-0">Use structured naming (e.g. REQ-SEC-01) for automated RTM indexing.</p>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3 mb-3">
+                        <div class="stat-icon bg-success-light flex-shrink-0">
+                            <i class="bi bi-check2-square text-success"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold text-dark mb-1">Testable Specifications</h6>
+                            <p class="text-muted small mb-0">Ensure descriptions are clear so QA testers can map test cases cleanly.</p>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3">
+                        <div class="stat-icon bg-warning-light flex-shrink-0">
+                            <i class="bi bi-clock-history text-warning"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold text-dark mb-1">Automatic Versioning</h6>
+                            <p class="text-muted small mb-0">Every edit automatically increments the version counter and logs audit history.</p>
+                        </div>
                     </div>
                 </div>
             </div>
-            {% endif %}
         </div>
     </div>
 </div>
