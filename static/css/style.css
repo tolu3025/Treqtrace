@@ -579,3 +579,111 @@ body.dark-theme .form-control::placeholder {
     color: #555555 !important;
 }
 
+/* Explicit Heading Colors */
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+    color: var(--text-main);
+}
+
+/* ==========================================================================
+   PRINT MEDIA STYLING (Clean Report summary printing)
+   ========================================================================== */
+@media print {
+    /* Hide non-document elements */
+    .bg-dark-treq,
+    .navbar,
+    .breadcrumb,
+    .footer,
+    footer,
+    .btn,
+    .btn-outline-primary,
+    .btn-primary,
+    #themeToggleBtn,
+    #notificationBellBtn,
+    #markAllReadBtn,
+    .alert,
+    form {
+        display: none !important;
+    }
+    
+    /* Document Setup */
+    body {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        font-size: 11pt !important;
+    }
+    
+    .main-content {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    .container, .container-fluid {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    /* Clean Cards for Print */
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        margin-bottom: 2rem !important;
+    }
+    
+    .card-header {
+        background-color: #ffffff !important;
+        border-bottom: 2px solid #000000 !important;
+        color: #000000 !important;
+        padding: 0.5rem 0 !important;
+        font-size: 14pt !important;
+    }
+    
+    .card-body {
+        padding: 1rem 0 !important;
+    }
+    
+    .table-responsive {
+        border: none !important;
+        overflow: visible !important;
+    }
+    
+    /* Print Table Layout */
+    .table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        color: #000000 !important;
+    }
+    
+    .table thead th {
+        background-color: #f3f4f6 !important;
+        color: #000000 !important;
+        border-bottom: 2px solid #000000 !important;
+        padding: 6px 12px !important;
+    }
+    
+    .table tbody td {
+        border-bottom: 1px solid #e5e7eb !important;
+        color: #000000 !important;
+        padding: 6px 12px !important;
+    }
+    
+    /* Stat Cards layout for print (horizontal grids) */
+    .stat-card-dashboard {
+        border: 1px solid #e5e7eb !important;
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        box-shadow: none !important;
+    }
+    
+    /* Ensure colors print correctly */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}
+
