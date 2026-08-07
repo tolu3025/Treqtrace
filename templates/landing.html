@@ -15,21 +15,28 @@
 </header>
 
 <!-- Hero Section -->
-<section class="landing-hero">
-    <div class="container py-5">
-        <h1 class="landing-hero-title">Track. Trace. Validate.</h1>
-        <p class="landing-hero-subtitle">
-            A software validation platform for requirements traceability. 
-            Connect requirements directly to design artifacts and test cases, 
-            generating verification matrixes instantly without manual record keeping.
-        </p>
-        <div class="d-flex justify-content-center gap-3">
-            <a href="{{ url_for('register') }}" class="btn btn-primary px-5 py-3 fw-bold">
-                Get Started
-            </a>
-            <a href="{{ url_for('login') }}" class="btn btn-outline-primary px-5 py-3 fw-bold">
-                Sign In
-            </a>
+<section class="landing-hero text-start py-5">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-12 col-lg-6">
+                <h1 class="landing-hero-title text-start mb-3" style="font-size: 3.5rem;">Track. Trace.<br>Validate.</h1>
+                <p class="landing-hero-subtitle text-start ms-0 mb-4" style="font-size: 1.15rem;">
+                    A software validation platform for requirements traceability. 
+                    Connect requirements directly to design artifacts and test cases, 
+                    generating verification matrixes instantly.
+                </p>
+                <div class="d-flex gap-3">
+                    <a href="{{ url_for('register') }}" class="btn btn-primary px-4 py-3 fw-bold">
+                        Get Started
+                    </a>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-primary px-4 py-3 fw-bold">
+                        Sign In
+                    </a>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6">
+                <img src="{{ url_for('static', filename='images/landing_dashboard_mockup.png') }}" class="img-fluid border rounded" alt="TreqTrace Dashboard" style="border-color: var(--border) !important; max-height: 420px; width: 100%; object-fit: cover;">
+            </div>
         </div>
     </div>
 </section>
@@ -98,23 +105,7 @@
                 </div>
             </div>
             <div class="col-12 col-lg-6">
-                <div class="p-5 bg-surface border rounded" style="border-color: var(--border) !important;">
-                    <h5 class="fw-bold mb-4 text-main text-center">Validation Lifecycle</h5>
-                    <div class="d-flex flex-column gap-3">
-                        <div class="p-3 bg-secondary rounded d-flex justify-content-between align-items-center">
-                            <span class="fw-bold">Draft Requirement</span>
-                            <span class="badge bg-secondary text-main">Draft</span>
-                        </div>
-                        <div class="p-3 bg-secondary rounded d-flex justify-content-between align-items-center">
-                            <span class="fw-bold">Design Connected</span>
-                            <span class="badge bg-info text-white">Implemented</span>
-                        </div>
-                        <div class="p-3 bg-secondary rounded d-flex justify-content-between align-items-center">
-                            <span class="fw-bold">Tests Passed</span>
-                            <span class="badge bg-success text-white">Validated</span>
-                        </div>
-                    </div>
-                </div>
+                <img src="{{ url_for('static', filename='images/verification_matrix_diagram.png') }}" class="img-fluid border rounded" alt="Verification Matrix" style="border-color: var(--border) !important; width: 100%;">
             </div>
         </div>
     </div>
