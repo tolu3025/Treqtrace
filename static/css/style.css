@@ -562,3 +562,20 @@ body.dark-theme .btn-outline-secondary:hover {
     background-color: var(--bg-secondary) !important;
 }
 
+body.dark-theme .text-muted,
+body.dark-theme .form-text,
+body.dark-theme p.text-muted,
+body.dark-theme span.text-muted,
+body.dark-theme p.text-muted.mb-0 {
+    color: #a1a1aa !important;
+}
+
+body.dark-theme label,
+body.dark-theme .form-label {
+    color: var(--text-main) !important;
+}
+
+body.dark-theme .form-control::placeholder {
+    color: #555555 !important;
+}
+
