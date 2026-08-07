@@ -944,6 +944,11 @@ def init_db():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
+        try:
+            db.session.execute(db.text("ALTER TABLE users ADD COLUMN avatar VARCHAR(256)"))
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
         if not User.query.filter_by(username='admin').first():
             admin = User(username='admin', email='admin@treqtrace.com', role='admin')
             admin.set_password('admin123')
