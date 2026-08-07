@@ -505,3 +505,60 @@ footer {
     font-size: 0.85rem;
     color: var(--text-muted);
 }
+
+/* ==========================================================================
+   DARK THEME BOOTSTRAP OVERRIDES
+   ========================================================================== */
+body.dark-theme .bg-white,
+body.dark-theme .card-header.bg-white,
+body.dark-theme .stat-card-dashboard.bg-white {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-main) !important;
+}
+
+body.dark-theme .text-dark,
+body.dark-theme .card-title,
+body.dark-theme h3,
+body.dark-theme h5,
+body.dark-theme h6 {
+    color: var(--text-main) !important;
+}
+
+body.dark-theme .bg-light {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-main) !important;
+}
+
+body.dark-theme .table-light {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-main) !important;
+}
+
+body.dark-theme .table-light th {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-muted) !important;
+    border-color: var(--border) !important;
+}
+
+body.dark-theme .list-group-item {
+    background-color: var(--bg-primary) !important;
+    color: var(--text-main) !important;
+    border-color: var(--border) !important;
+}
+
+body.dark-theme .list-group-item-action:hover {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-main) !important;
+}
+
+body.dark-theme .btn-outline-info,
+body.dark-theme .btn-outline-secondary {
+    color: var(--text-main) !important;
+    border-color: var(--border) !important;
+}
+
+body.dark-theme .btn-outline-info:hover,
+body.dark-theme .btn-outline-secondary:hover {
+    background-color: var(--bg-secondary) !important;
+}
+
