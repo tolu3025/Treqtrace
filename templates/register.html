@@ -25,7 +25,12 @@
         </div>
         <div class="mb-4">
             <label class="form-label fw-semibold small text-muted">Password</label>
-            <input type="password" name="password" class="form-control" placeholder="Create a strong password" required>
+            <div class="input-group">
+                <input type="password" name="password" class="form-control" placeholder="Create a strong password" required>
+                <button class="btn password-toggle-btn" type="button" title="Toggle Password Visibility">
+                    <i class="bi bi-eye"></i>
+                </button>
+            </div>
         </div>
         <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
             Create Account

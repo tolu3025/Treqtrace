@@ -13,7 +13,12 @@
         </div>
         <div class="mb-4">
             <label class="form-label fw-semibold small text-muted">Password</label>
-            <input type="password" name="password" class="form-control" placeholder="Enter password" required>
+            <div class="input-group">
+                <input type="password" name="password" class="form-control" placeholder="Enter password" required>
+                <button class="btn password-toggle-btn" type="button" title="Toggle Password Visibility">
+                    <i class="bi bi-eye"></i>
+                </button>
+            </div>
         </div>
         <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
             Sign In
@@ -21,14 +26,7 @@
     </form>
     <hr class="my-4" style="border-color: var(--border);">
     <div class="text-center">
-        <p class="mb-3 text-muted small">Don't have an account? <a href="{{ url_for('register') }}" class="fw-bold text-primary text-decoration-none">Create Account</a></p>
-        <div class="p-3 rounded small text-start" style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border);">
-            <span class="text-muted">Demo Credentials:</span>
-            <div class="d-flex justify-content-between mt-1">
-                <span>Username: <strong class="text-white">admin</strong></span>
-                <span>Password: <strong class="text-white">admin123</strong></span>
-            </div>
-        </div>
+        <p class="mb-0 text-muted small">Don't have an account? <a href="{{ url_for('register') }}" class="fw-bold text-primary text-decoration-none">Create Account</a></p>
     </div>
 </div>
 {% endblock %}

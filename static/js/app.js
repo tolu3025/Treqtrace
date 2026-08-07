@@ -1,12 +1,72 @@
 /* TreqTrace - Application JavaScript */
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Theme Management
+    const themeToggle = document.getElementById('themeToggleBtn');
+    
+    // Check local storage or system preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+        updateThemeToggleIcon(true);
+    } else if (savedTheme === 'light') {
+        document.body.classList.remove('dark-theme');
+        updateThemeToggleIcon(false);
+    } else {
+        // Default to dark theme if not set
+        document.body.classList.add('dark-theme');
+        updateThemeToggleIcon(true);
+    }
+
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            const isDark = document.body.classList.toggle('dark-theme');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeToggleIcon(isDark);
+            
+            // Re-render chart if it exists to match theme border colors
+            if (window.validationChartInstance) {
+                window.validationChartInstance.options.datasets[0].borderColor = isDark ? '#111827' : '#ffffff';
+                window.validationChartInstance.options.plugins.legend.labels.color = isDark ? '#94a3b8' : '#64748b';
+                window.validationChartInstance.update();
+            }
+        });
+    }
+
+    function updateThemeToggleIcon(isDark) {
+        if (!themeToggle) return;
+        const icon = themeToggle.querySelector('i');
+        if (isDark) {
+            icon.className = 'bi bi-sun-fill';
+        } else {
+            icon.className = 'bi bi-moon-fill';
+        }
+    }
+
+    // Password Visibility Toggle
+    document.querySelectorAll('.password-toggle-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const container = this.closest('.input-group');
+            const input = container.querySelector('input');
+            const icon = this.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+        });
+    });
+
     // Auto-dismiss alerts after 5 seconds
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(alert => {
         setTimeout(() => {
             const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
-            bsAlert.close();
+            if (bsAlert) bsAlert.close();
         }, 5000);
     });
 
