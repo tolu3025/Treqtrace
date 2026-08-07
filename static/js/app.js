@@ -78,7 +78,64 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // Notifications Management
+    const notifBadge = document.getElementById('notifBadge');
+    const notifListContainer = document.getElementById('notifListContainer');
+    const markAllReadBtn = document.getElementById('markAllReadBtn');
+
+    function fetchNotifications() {
+        fetch('/api/notifications')
+            .then(res => res.json())
+            .then(data => {
+                if (data.unread_count > 0) {
+                    notifBadge.textContent = data.unread_count;
+                    notifBadge.classList.remove('d-none');
+                } else {
+                    notifBadge.classList.add('d-none');
+                }
+
+                if (data.notifications && data.notifications.length > 0) {
+                    notifListContainer.innerHTML = data.notifications.map(n => `
+                        <li>
+                            <div class="dropdown-item py-2 border-bottom" style="border-color: var(--border) !important; white-space: normal;">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <span class="fw-semibold text-main small" style="line-height:1.2; display:block;">${n.message}</span>
+                                    ${!n.is_read ? '<span class="status-dot success ms-2" style="flex-shrink:0;"></span>' : ''}
+                                </div>
+                                <span class="text-muted" style="font-size: 0.72rem;">${n.created_at}</span>
+                            </div>
+                        </li>
+                    `).join('');
+                } else {
+                    notifListContainer.innerHTML = `
+                        <li><span class="dropdown-item-text text-muted small text-center py-3 d-block">No notifications</span></li>
+                    `;
+                }
+            })
+            .catch(err => console.error("Error loading notifications:", err));
+    }
+
+    if (notifBadge) {
+        fetchNotifications();
+        setInterval(fetchNotifications, 30000);
+    }
+
+    if (markAllReadBtn) {
+        markAllReadBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            fetch('/notifications/mark-all-read', { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        fetchNotifications();
+                    }
+                })
+                .catch(err => console.error(err));
+        });
+    }
 });
+
 
 // Traceability link management
 function addLink(requirementId, artifactId, artifactType) {

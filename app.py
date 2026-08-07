@@ -38,6 +38,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
     role = db.Column(db.String(20), default='developer')  # admin, developer, tester
+    avatar = db.Column(db.String(256), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     projects = db.relationship('Project', backref='creator', lazy=True)
@@ -58,6 +59,24 @@ class User(UserMixin, db.Model):
 
     def is_tester(self):
         return self.role in ['admin', 'tester']
+
+class Notification(db.Model):
+    __tablename__ = 'notifications'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    message = db.Column(db.String(500), nullable=False)
+    is_read = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+def create_notification(user_id, message):
+    try:
+        notif = Notification(user_id=user_id, message=message)
+        db.session.add(notif)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        print("Notification error:", e)
+
 
 class Project(db.Model):
     __tablename__ = 'projects'
@@ -382,6 +401,7 @@ def new_project():
         project = Project(name=name, description=description, created_by=current_user.id)
         db.session.add(project)
         db.session.commit()
+        create_notification(current_user.id, f"Project '{project.name}' has been created successfully.")
 
         # Handle file uploads
         if 'project_files' in request.files:
@@ -476,6 +496,7 @@ def new_requirement(project_id):
         )
         db.session.add(version)
         db.session.commit()
+        create_notification(current_user.id, f"Requirement '{req.req_id}' added to project '{project.name}'.")
 
         flash('Requirement created successfully!', 'success')
         return redirect(url_for('view_project', id=project_id))
@@ -516,6 +537,7 @@ def edit_requirement(id):
         req.updated_at = datetime.utcnow()
 
         db.session.commit()
+        create_notification(current_user.id, f"Requirement '{req.req_id}' in project '{project.name}' has been updated to version {req.version}.")
         flash('Requirement updated successfully!', 'success')
         return redirect(url_for('view_project', id=req.project_id))
 
@@ -765,12 +787,95 @@ def export_report(project_id):
         download_name=f'treqtrace_report_{project.name.replace(" ", "_")}.csv'
     )
 
-# ---------- ADMIN ----------
+# ---------- USER PROFILE & SETTINGS & NOTIFICATIONS ----------
+
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        email = request.form.get('email')
+        avatar_file = request.files.get('avatar')
+
+        # Check unique constraint if changing username
+        if username != current_user.username:
+            if User.query.filter_by(username=username).first():
+                flash('Username already exists.', 'danger')
+                return redirect(url_for('profile'))
+            current_user.username = username
+
+        # Check unique constraint if changing email
+        if email != current_user.email:
+            if User.query.filter_by(email=email).first():
+                flash('Email already registered.', 'danger')
+                return redirect(url_for('profile'))
+            current_user.email = email
+
+        if avatar_file and avatar_file.filename:
+            filename = secure_filename(avatar_file.filename)
+            unique_name = f"avatar_{current_user.id}_{filename}"
+            avatar_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_name)
+            avatar_file.save(avatar_path)
+            current_user.avatar = unique_name
+
+        db.session.commit()
+        flash('Profile updated successfully!', 'success')
+        return redirect(url_for('profile'))
+
+    return render_template('profile.html')
+
+@app.route('/settings', methods=['GET', 'POST'])
+@login_required
+def settings():
+    if request.method == 'POST':
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+        role = request.form.get('role')
+
+        if new_password:
+            if new_password != confirm_password:
+                flash('Passwords do not match.', 'danger')
+                return redirect(url_for('settings'))
+            current_user.set_password(new_password)
+            flash('Password changed successfully.', 'success')
+
+        if role and role in ['admin', 'developer', 'tester']:
+            current_user.role = role
+            flash(f'System role updated to {role.capitalize()}', 'success')
+
+        db.session.commit()
+        return redirect(url_for('settings'))
+
+    return render_template('settings.html')
+
+@app.route('/api/notifications')
+@login_required
+def get_notifications():
+    notifications = Notification.query.filter_by(user_id=current_user.id).order_by(Notification.created_at.desc()).limit(10).all()
+    unread_count = Notification.query.filter_by(user_id=current_user.id, is_read=False).count()
+    return jsonify({
+        'notifications': [{
+            'id': n.id,
+            'message': n.message,
+            'is_read': n.is_read,
+            'created_at': n.created_at.strftime('%Y-%m-%d %H:%M')
+        } for n in notifications],
+        'unread_count': unread_count
+    })
+
+@app.route('/notifications/mark-all-read', methods=['POST'])
+@login_required
+def mark_all_read():
+    Notification.query.filter_by(user_id=current_user.id, is_read=False).update({Notification.is_read: True}, synchronize_session=False)
+    db.session.commit()
+    return jsonify({'success': True})
+
+# ---------- FILE SERVING & ADMIN ----------
 
 @app.route('/uploads/<filename>')
 @login_required
 def download_file(filename):
-    return send_file(os.path.join(app.config['UPLOAD_FOLDER'], filename), as_attachment=True)
+    return send_file(os.path.join(app.config['UPLOAD_FOLDER'], filename), as_attachment=False)
 
 @app.route('/projects/<int:project_id>/upload', methods=['POST'])
 @login_required
