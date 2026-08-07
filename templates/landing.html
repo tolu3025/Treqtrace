@@ -4,8 +4,9 @@
 <!-- Landing page has its own navbar -->
 <nav class="navbar navbar-expand-lg navbar-light bg-white landing-navbar">
     <div class="container">
-        <a class="navbar-brand d-flex align-items-center" href="{{ url_for('index') }}">
-            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="TreqTrace" height="45" class="me-2">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('index') }}">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="TreqTrace" height="38" class="rounded">
+            <span class="fw-bold text-dark fs-4" style="letter-spacing: -0.5px;">TreqTrace</span>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#landingNav">
             <span class="navbar-toggler-icon"></span>

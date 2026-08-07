@@ -14,9 +14,6 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark-treq shadow-sm">
         <div class="container-fluid px-lg-4">
             <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('dashboard') }}">
-                <div class="brand-icon">
-                    <i class="bi bi-shield-check"></i>
-                </div>
                 <span class="brand-text">TreqTrace</span>
             </a>
             <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -27,11 +24,6 @@
                     <li class="nav-item">
                         <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">
                             <i class="bi bi-grid-1x2-fill"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint in ['projects', 'view_project', 'new_project'] %}active{% endif %}" href="{{ url_for('projects') }}">
-                            <i class="bi bi-folder-fill"></i> Projects
                         </a>
                     </li>
                 </ul>
@@ -90,7 +82,7 @@
     <footer class="footer py-3 bg-white border-top text-center text-muted">
         <div class="container-fluid px-lg-4 d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
             <div class="small fw-medium">
-                <i class="bi bi-shield-check text-primary me-1"></i> &copy; {{ now.year }} <strong>TreqTrace</strong> — Requirement Traceability & Software Validation System
+                &copy; {{ now.year }} <strong>TreqTrace</strong> — Requirement Traceability & Software Validation System
             </div>
             <div class="small text-muted">
                 Built by <strong>Oluwagbemiga Opemipo Stephen</strong>

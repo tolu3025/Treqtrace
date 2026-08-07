@@ -7,37 +7,30 @@
             <div class="col-12 col-sm-10 col-md-6 col-lg-5">
                 <div class="auth-card shadow-lg border-0">
                     <div class="text-center mb-4">
-                        <div class="brand-icon mx-auto mb-3" style="width: 54px; height: 54px; font-size: 1.75rem;">
-                            <i class="bi bi-shield-check"></i>
-                        </div>
-                        <h3 class="fw-bold mb-1">Welcome Back</h3>
-                        <p class="text-muted small">Sign in to access your TreqTrace software validation projects</p>
+                        <h2 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">TreqTrace</h2>
+                        <p class="text-muted small">Requirement Traceability & Software Validation System</p>
                     </div>
                     <form method="POST">
                         <div class="mb-3">
                             <label class="form-label fw-semibold small">Username</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-person"></i></span>
-                                <input type="text" name="username" class="form-control border-start-0" placeholder="Enter your username" required autofocus>
-                            </div>
+                            <input type="text" name="username" class="form-control" placeholder="Enter your username" required autofocus>
                         </div>
                         <div class="mb-4">
-                            <label class="form-label fw-semibold small">Password</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-lock"></i></span>
-                                <input type="password" name="password" class="form-control border-start-0" placeholder="Enter password" required>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label class="form-label fw-semibold small mb-0">Password</label>
                             </div>
+                            <input type="password" name="password" class="form-control" placeholder="Enter password" required>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100 py-2 shadow-sm">
-                            <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
+                        <button type="submit" class="btn btn-primary w-100 py-2 shadow-sm fw-bold">
+                            Sign In
                         </button>
                     </form>
                     <hr class="my-4">
                     <div class="text-center">
                         <p class="mb-2 text-muted small">Don't have an account? <a href="{{ url_for('register') }}" class="fw-bold text-primary text-decoration-none">Create Account</a></p>
-                        <span class="badge bg-light text-muted border p-2 fw-normal">
-                            <i class="bi bi-info-circle me-1"></i> Demo Credentials: <strong>admin</strong> / <strong>admin123</strong>
-                        </span>
+                        <div class="bg-light p-2 rounded text-muted small">
+                            Demo Credentials: <strong>admin</strong> / <strong>admin123</strong>
+                        </div>
                     </div>
                 </div>
             </div>

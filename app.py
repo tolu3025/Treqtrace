@@ -208,7 +208,7 @@ def login():
         user = User.query.filter_by(username=username).first()
 
         if user and user.check_password(password):
-            login_user(user)
+            login_user(user, remember=True)
             flash(f'Welcome back, {user.username}!', 'success')
             next_page = request.args.get('next')
             return redirect(next_page) if next_page else redirect(url_for('dashboard'))
@@ -241,7 +241,7 @@ def register():
         db.session.commit()
 
         # Auto-login after registration
-        login_user(user)
+        login_user(user, remember=True)
         flash(f'Welcome to TreqTrace, {user.username}! Your account has been created.', 'success')
         return redirect(url_for('dashboard'))
 

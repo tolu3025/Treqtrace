@@ -1,9 +1,11 @@
+from datetime import timedelta
 import os
 
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'treqtrace-dev-secret-key-2026'
+    # Fixed fallback secret key so sessions persist across process restarts
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'treqtrace-production-fixed-secret-key-2026-v1'
     
-    # Detect Vercel serverless environment (where filesystem is read-only except /tmp)
+    # Detect Vercel / serverless environment
     IS_VERCEL = os.environ.get('VERCEL') == '1' or 'VERCEL' in os.environ
     
     db_url = os.environ.get('DATABASE_URL')
@@ -17,6 +19,12 @@ class Config:
         SQLALCHEMY_DATABASE_URI = 'sqlite:///treqtrace.db'
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    # Session & Cookie persistence settings to prevent unexpected logouts
+    PERMANENT_SESSION_LIFETIME = timedelta(days=30)
+    REMEMBER_COOKIE_DURATION = timedelta(days=30)
+    REMEMBER_COOKIE_HTTPONLY = True
+    REMEMBER_COOKIE_REFRESH_EACH_REQUEST = True
 
     if IS_VERCEL:
         UPLOAD_FOLDER = '/tmp/uploads'
