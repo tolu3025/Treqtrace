@@ -1,6 +1,5 @@
 """
 TreqTrace - Software Validation System for Requirement Traceability
-Built by Oluwagbemiga Opemipo Stephen
 """
 
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, send_file
@@ -246,6 +245,8 @@ def register():
         email = request.form.get('email')
         password = request.form.get('password')
         role = request.form.get('role', 'developer')
+        if role == 'admin':
+            role = 'developer'
 
         if User.query.filter_by(username=username).first():
             flash('Username already exists.', 'danger')
@@ -394,6 +395,10 @@ def projects():
 @app.route('/projects/new', methods=['GET', 'POST'])
 @login_required
 def new_project():
+    if not (current_user.is_developer() or current_user.is_admin()):
+        flash('Permission denied. Developer role required.', 'danger')
+        return redirect(url_for('dashboard'))
+
     if request.method == 'POST':
         name = request.form.get('name')
         description = request.form.get('description')
@@ -443,6 +448,9 @@ def view_project(id):
 @app.route('/projects/<int:id>/delete', methods=['POST'])
 @login_required
 def delete_project(id):
+    if not (current_user.is_developer() or current_user.is_admin()):
+        flash('Permission denied. Developer role required.', 'danger')
+        return redirect(url_for('projects'))
     project = Project.query.get_or_404(id)
     if not current_user.is_admin() and project.created_by != current_user.id:
         flash('Permission denied.', 'danger')
@@ -458,6 +466,9 @@ def delete_project(id):
 @app.route('/projects/<int:project_id>/requirements/new', methods=['GET', 'POST'])
 @login_required
 def new_requirement(project_id):
+    if not (current_user.is_developer() or current_user.is_admin()):
+        flash('Permission denied. Developer role required.', 'danger')
+        return redirect(url_for('view_project', id=project_id))
     project = Project.query.get_or_404(project_id)
 
     if request.method == 'POST':
@@ -507,6 +518,9 @@ def new_requirement(project_id):
 @login_required
 def edit_requirement(id):
     req = Requirement.query.get_or_404(id)
+    if not (current_user.is_developer() or current_user.is_admin()):
+        flash('Permission denied. Developer role required.', 'danger')
+        return redirect(url_for('view_project', id=req.project_id))
     project = Project.query.get(req.project_id)
 
     if request.method == 'POST':
@@ -572,6 +586,9 @@ def view_requirement(id):
 @login_required
 def delete_requirement(id):
     req = Requirement.query.get_or_404(id)
+    if not (current_user.is_developer() or current_user.is_admin()):
+        flash('Permission denied. Developer role required.', 'danger')
+        return redirect(url_for('view_project', id=req.project_id))
     project_id = req.project_id
     db.session.delete(req)
     db.session.commit()
@@ -583,6 +600,9 @@ def delete_requirement(id):
 @app.route('/projects/<int:project_id>/designs/new', methods=['GET', 'POST'])
 @login_required
 def new_design(project_id):
+    if not (current_user.is_developer() or current_user.is_admin()):
+        flash('Permission denied. Developer role required.', 'danger')
+        return redirect(url_for('view_project', id=project_id))
     project = Project.query.get_or_404(project_id)
 
     if request.method == 'POST':
@@ -604,6 +624,9 @@ def new_design(project_id):
 @login_required
 def delete_design(id):
     design = DesignArtifact.query.get_or_404(id)
+    if not (current_user.is_developer() or current_user.is_admin()):
+        flash('Permission denied. Developer role required.', 'danger')
+        return redirect(url_for('view_project', id=design.project_id))
     project_id = design.project_id
     db.session.delete(design)
     db.session.commit()
@@ -615,6 +638,9 @@ def delete_design(id):
 @app.route('/projects/<int:project_id>/tests/new', methods=['GET', 'POST'])
 @login_required
 def new_test_case(project_id):
+    if not (current_user.is_tester() or current_user.is_admin()):
+        flash('Permission denied. QA Tester role required.', 'danger')
+        return redirect(url_for('view_project', id=project_id))
     project = Project.query.get_or_404(project_id)
 
     if request.method == 'POST':
@@ -636,6 +662,9 @@ def new_test_case(project_id):
 @login_required
 def edit_test_case(id):
     tc = TestCase.query.get_or_404(id)
+    if not (current_user.is_tester() or current_user.is_admin()):
+        flash('Permission denied. QA Tester role required.', 'danger')
+        return redirect(url_for('view_project', id=tc.project_id))
     project = Project.query.get(tc.project_id)
 
     if request.method == 'POST':
@@ -658,6 +687,9 @@ def edit_test_case(id):
 @login_required
 def delete_test_case(id):
     tc = TestCase.query.get_or_404(id)
+    if not (current_user.is_tester() or current_user.is_admin()):
+        flash('Permission denied. QA Tester role required.', 'danger')
+        return redirect(url_for('view_project', id=tc.project_id))
     project_id = tc.project_id
     db.session.delete(tc)
     db.session.commit()
@@ -704,6 +736,11 @@ def add_trace_link():
     artifact_id = data.get('artifact_id')
     artifact_type = data.get('artifact_type')
 
+    if artifact_type == 'design' and not (current_user.is_developer() or current_user.is_admin()):
+        return jsonify({'success': False, 'message': 'Permission denied. Developer role required.'})
+    if artifact_type == 'test_case' and not (current_user.is_tester() or current_user.is_admin()):
+        return jsonify({'success': False, 'message': 'Permission denied. QA Tester role required.'})
+
     existing = TraceabilityLink.query.filter_by(
         requirement_id=requirement_id,
         artifact_id=artifact_id,
@@ -727,6 +764,10 @@ def add_trace_link():
 @login_required
 def remove_trace_link(link_id):
     link = TraceabilityLink.query.get_or_404(link_id)
+    if link.artifact_type == 'design' and not (current_user.is_developer() or current_user.is_admin()):
+        return jsonify({'success': False, 'message': 'Permission denied. Developer role required.'})
+    if link.artifact_type == 'test_case' and not (current_user.is_tester() or current_user.is_admin()):
+        return jsonify({'success': False, 'message': 'Permission denied. QA Tester role required.'})
     db.session.delete(link)
     db.session.commit()
     return jsonify({'success': True, 'message': 'Link removed'})
@@ -840,8 +881,11 @@ def settings():
             flash('Password changed successfully.', 'success')
 
         if role and role in ['admin', 'developer', 'tester']:
-            current_user.role = role
-            flash(f'System role updated to {role.capitalize()}', 'success')
+            if current_user.is_admin():
+                current_user.role = role
+                flash(f'System role updated to {role.capitalize()}', 'success')
+            else:
+                flash('Only administrators can change system roles.', 'danger')
 
         db.session.commit()
         return redirect(url_for('settings'))
@@ -880,6 +924,9 @@ def download_file(filename):
 @app.route('/projects/<int:project_id>/upload', methods=['POST'])
 @login_required
 def upload_project_file(project_id):
+    if not (current_user.is_developer() or current_user.is_admin()):
+        flash('Permission denied. Developer role required.', 'danger')
+        return redirect(url_for('view_project', id=project_id))
     project = Project.query.get_or_404(project_id)
     if 'project_files' not in request.files:
         flash('No file selected.', 'warning')

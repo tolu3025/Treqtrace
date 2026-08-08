@@ -70,6 +70,7 @@
     {% endif %}
 
     <!-- Upload Specification Files -->
+    {% if current_user.is_developer() or current_user.is_admin() %}
     <div class="card shadow-sm mb-4">
         <div class="card-header bg-white">
             <h5 class="mb-0 fw-bold fs-6"><i class="bi bi-cloud-arrow-up text-primary me-2"></i> Upload Requirements / SRS Documents</h5>
@@ -86,14 +87,17 @@
             </form>
         </div>
     </div>
+    {% endif %}
 
     <!-- Requirements Table Card -->
     <div class="card shadow-sm mb-4">
         <div class="card-header bg-white d-flex align-items-center justify-content-between">
             <h5 class="mb-0 fw-bold fs-6"><i class="bi bi-file-text-fill text-primary me-2"></i> Requirements Traceability ({{ requirements|length }})</h5>
+            {% if current_user.is_developer() or current_user.is_admin() %}
             <a href="{{ url_for('new_requirement', project_id=project.id) }}" class="btn btn-sm btn-primary">
                 <i class="bi bi-plus-lg me-1"></i> Add Requirement
             </a>
+            {% endif %}
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -141,10 +145,12 @@
                             <td class="text-end">
                                 <div class="btn-group btn-group-sm">
                                     <a href="{{ url_for('view_requirement', id=req.id) }}" class="btn btn-outline-primary" title="View"><i class="bi bi-eye"></i></a>
+                                    {% if current_user.is_developer() or current_user.is_admin() %}
                                     <a href="{{ url_for('edit_requirement', id=req.id) }}" class="btn btn-outline-secondary" title="Edit"><i class="bi bi-pencil"></i></a>
                                     <form action="{{ url_for('delete_requirement', id=req.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this requirement?');">
                                         <button type="submit" class="btn btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></button>
                                     </form>
+                                    {% endif %}
                                 </div>
                             </td>
                         </tr>
@@ -152,7 +158,10 @@
                         <tr>
                             <td colspan="9" class="text-center text-muted py-5">
                                 <i class="bi bi-file-earmark-plus display-5 d-block mb-2 text-secondary"></i>
-                                No requirements defined yet. <a href="{{ url_for('new_requirement', project_id=project.id) }}" class="fw-bold">Add your first requirement</a>
+                                No requirements defined yet.
+                                {% if current_user.is_developer() or current_user.is_admin() %}
+                                <a href="{{ url_for('new_requirement', project_id=project.id) }}" class="fw-bold">Add your first requirement</a>
+                                {% endif %}
                             </td>
                         </tr>
                         {% endfor %}
@@ -168,9 +177,11 @@
             <div class="card shadow-sm h-100">
                 <div class="card-header bg-white d-flex align-items-center justify-content-between">
                     <h5 class="mb-0 fw-bold fs-6"><i class="bi bi-diagram-2-fill text-info me-2"></i> Design Artifacts ({{ design_artifacts|length }})</h5>
+                    {% if current_user.is_developer() or current_user.is_admin() %}
                     <a href="{{ url_for('new_design', project_id=project.id) }}" class="btn btn-sm btn-info text-white">
                         <i class="bi bi-plus-lg me-1"></i> Add Artifact
                     </a>
+                    {% endif %}
                 </div>
                 <div class="card-body p-0">
                     <div class="list-group list-group-flush">
@@ -189,15 +200,20 @@
                                 {% if art.artifact_type == 'Uploaded Document' %}
                                 <a href="{{ url_for('download_file', filename=art.reference_link) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-download"></i> Download</a>
                                 {% else %}
+                                {% if current_user.is_developer() or current_user.is_admin() %}
                                 <form action="{{ url_for('delete_design', id=art.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete artifact?');">
                                     <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
                                 </form>
+                                {% endif %}
                                 {% endif %}
                             </div>
                         </div>
                         {% else %}
                         <div class="list-group-item text-center text-muted py-4">
-                            No design artifacts linked yet. <a href="{{ url_for('new_design', project_id=project.id) }}">Add design model</a>
+                            No design artifacts linked yet.
+                            {% if current_user.is_developer() or current_user.is_admin() %}
+                            <a href="{{ url_for('new_design', project_id=project.id) }}">Add design model</a>
+                            {% endif %}
                         </div>
                         {% endfor %}
                     </div>
@@ -210,9 +226,11 @@
             <div class="card shadow-sm h-100">
                 <div class="card-header bg-white d-flex align-items-center justify-content-between">
                     <h5 class="mb-0 fw-bold fs-6"><i class="bi bi-ui-checks text-warning me-2"></i> Test Cases ({{ test_cases|length }})</h5>
+                    {% if current_user.is_tester() or current_user.is_admin() %}
                     <a href="{{ url_for('new_test_case', project_id=project.id) }}" class="btn btn-sm btn-warning text-dark">
                         <i class="bi bi-plus-lg me-1"></i> Add Test Case
                     </a>
+                    {% endif %}
                 </div>
                 <div class="card-body p-0">
                     <div class="list-group list-group-flush">
@@ -229,16 +247,21 @@
                                     </span>
                                 </div>
                             </div>
+                            {% if current_user.is_tester() or current_user.is_admin() %}
                             <div class="d-flex gap-1">
                                 <a href="{{ url_for('edit_test_case', id=tc.id) }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
                                 <form action="{{ url_for('delete_test_case', id=tc.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete test case?');">
                                     <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
                                 </form>
                             </div>
+                            {% endif %}
                         </div>
                         {% else %}
                         <div class="list-group-item text-center text-muted py-4">
-                            No test cases created yet. <a href="{{ url_for('new_test_case', project_id=project.id) }}">Add test case</a>
+                            No test cases created yet.
+                            {% if current_user.is_tester() or current_user.is_admin() %}
+                            <a href="{{ url_for('new_test_case', project_id=project.id) }}">Add test case</a>
+                            {% endif %}
                         </div>
                         {% endfor %}
                     </div>

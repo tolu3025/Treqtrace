@@ -51,6 +51,7 @@
                     <h5 class="mb-0 fw-bold fs-6">System Permissions</h5>
                 </div>
                 <div class="card-body p-4">
+                    {% if current_user.is_admin() %}
                     <form method="POST">
                         <div class="mb-4">
                             <label class="form-label fw-semibold small text-muted">User Role</label>
@@ -67,6 +68,15 @@
                             Save Permissions
                         </button>
                     </form>
+                    {% else %}
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold small text-muted d-block">Current Role</label>
+                        <span class="badge bg-secondary text-main text-uppercase fs-6 p-2">{{ current_user.role }}</span>
+                        <div class="form-text small text-muted mt-3">
+                            Your role determines your system access. If you need a role change, please contact a system administrator.
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
